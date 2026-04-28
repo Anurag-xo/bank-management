@@ -1,233 +1,210 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TCS - Dashboard</title>
-    <!-- Bootstrap 5 -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Bootstrap Icons -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-      rel="stylesheet"
-    />
-    <!-- Shared Layout & Sidebar Styles -->
-    <link rel="stylesheet" href="shared-style.css" />
-    <!-- Page Specific Styles -->
-    <link rel="stylesheet" href="dashboard.css" />
-  </head>
 
-  <body>
-    <!-- Mobile Menu Toggle Button -->
-    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-      <i class="bi bi-list"></i>
-    </button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCS - Dashboard</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- Shared Layout & Sidebar Styles -->
+  <link rel="stylesheet" href="../shared-style.css" />
+  <!-- Page Specific Styles -->
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
 
-    <!-- Sidebar Overlay (mobile) -->
-    <div
-      class="sidebar-overlay"
-      id="sidebarOverlay"
-      onclick="toggleSidebar()"
-    ></div>
+<body>
+  <!-- Mobile Menu Toggle Button -->
+  <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
 
-    <!-- ============================
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- ============================
          SIDEBAR
          ============================ -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <h2><i class="bi bi-bank brand-icon"></i> TCS Bank</h2>
-      </div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h2><i class="bi bi-bank brand-icon"></i> TCS Bank</h2>
+    </div>
 
-      <ul class="sidebar-nav">
-        <!-- Dashboard (active) -->
-        <li class="nav-item">
-          <a href="dashboard.html" class="nav-link active">
-            <i class="bi bi-grid-1x2-fill"></i> Dashboard
-          </a>
-        </li>
+    <ul class="sidebar-nav">
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a href="dashboard.html" class="nav-link active">
+          <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+      </li>
 
-        <!-- Customers (with dropdown) -->
-        <li class="nav-item has-dropdown">
-          <a href="customer.html" class="nav-link">
-            <i class="bi bi-people-fill"></i> Customers
-            <i class="bi bi-chevron-right dropdown-arrow"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="customer.html" class="dropdown-link">View Customers</a>
-            </li>
-            <li>
-              <a href="customer.html" class="dropdown-link">Add Customer</a>
-            </li>
-            <li>
-              <a href="customer.html" class="dropdown-link">Customer Reports</a>
-            </li>
-          </ul>
-        </li>
+      <!-- Customers -->
+      <li class="nav-item has-dropdown">
+        <a href="../customer/customer.html" class="nav-link">
+          <i class="bi bi-people-fill"></i> Customers
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="../customer/view-customers.html" class="dropdown-link">View Customers</a>
+          </li>
+          <li>
+            <a href="../customer/customer.html" class="dropdown-link">Add Customer</a>
+          </li>
+        </ul>
+      </li>
 
-        <!-- Transactions (with dropdown) -->
-        <li class="nav-item has-dropdown">
-          <a href="transaction.html" class="nav-link">
-            <i class="bi bi-arrow-left-right"></i> Transactions
-            <i class="bi bi-chevron-right dropdown-arrow"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="transaction.html" class="dropdown-link"
-                >View Transactions</a
-              >
-            </li>
-            <li>
-              <a href="transaction.html" class="dropdown-link"
-                >New Transaction</a
-              >
-            </li>
-          </ul>
-        </li>
+      <!-- Transactions -->
+      <li class="nav-item has-dropdown">
+        <a href="../transaction/transaction.html" class="nav-link">
+          <i class="bi bi-arrow-left-right"></i> Transactions
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="../transaction/transaction-history.html" class="dropdown-link">View Transactions</a>
+          </li>
+          <li>
+            <a href="../transaction/transaction.html" class="dropdown-link">New Transaction</a>
+          </li>
+        </ul>
+      </li>
 
-        <!-- Loans (with dropdown) -->
-        <li class="nav-item has-dropdown">
-          <a href="loan.html" class="nav-link">
-            <i class="bi bi-cash-stack"></i> Loans
-            <i class="bi bi-chevron-right dropdown-arrow"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a href="loan.html" class="dropdown-link">Apply Loan</a></li>
-            <li><a href="loan.html" class="dropdown-link">Loan Status</a></li>
-          </ul>
-        </li>
-      </ul>
+      <!-- Loans -->
+      <li class="nav-item has-dropdown">
+        <a href="../loan/loan.html" class="nav-link">
+          <i class="bi bi-cash-stack"></i> Loans
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="../loan/loan.html" class="dropdown-link">Apply Loan</a></li>
+          <li><a href="../loan/loan-status.html" class="dropdown-link">Loan Status</a></li>
+        </ul>
+      </li>
+    </ul>
 
-      <!-- Logout at Bottom -->
-      <div class="sidebar-logout">
-        <a href="index.html" class="nav-link">
-          <i class="bi bi-box-arrow-left"></i> Logout
+    <!-- Logout at Bottom -->
+    <div class="sidebar-logout">
+      <a href="../landing/index.html" class="nav-link">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================
+         MAIN CONTENT
+         ============================ -->
+  <div class="main-content">
+    <!-- ============================
+             HEADER
+             ============================ -->
+    <div class="header">
+      <h1 class="h3 mb-0">Dashboard Overview</h1>
+      <div class="header-profile">
+        <div class="profile-info" id="profileInfo">
+          <b>Name:</b> <span id="userName">Employee</span> | <b>ID:</b>
+          <span id="userId">0000000</span>
+        </div>
+        <!-- Profile Icon Button -->
+        <a href="#" class="profile-icon-btn" title="My Profile">
+          <i class="bi bi-person-fill"></i>
         </a>
       </div>
     </div>
 
+    <p id="currentDate" class="text-muted mb-4" style="font-size: 0.88rem"></p>
+
     <!-- ============================
-         MAIN CONTENT
-         ============================ -->
-    <div class="main-content">
-      <!-- ============================
-             HEADER
-             ============================ -->
-      <div class="header">
-        <h1 class="h3 mb-0">Dashboard Overview</h1>
-        <div class="header-profile">
-          <div class="profile-info" id="profileInfo">
-            <b>Name:</b> <span id="userName">Employee</span> | <b>ID:</b>
-            <span id="userId">0000000</span>
-          </div>
-          <!-- Profile Icon Button -->
-          <a href="#" class="profile-icon-btn" title="My Profile">
-            <i class="bi bi-person-fill"></i>
-          </a>
-        </div>
-      </div>
-
-      <p
-        id="currentDate"
-        class="text-muted mb-4"
-        style="font-size: 0.88rem"
-      ></p>
-
-      <!-- ============================
              DASHBOARD CARDS (Stats Grid)
              ============================ -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-4">
-          <div class="stat-box stat-box-customers">
-            <div class="stat-icon">
-              <i class="bi bi-people-fill"></i>
-            </div>
-            <h3 id="totalCustomers" class="stat-number">1,248</h3>
-            <p class="stat-label">Total Customers</p>
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="stat-box stat-box-customers">
+          <div class="stat-icon">
+            <i class="bi bi-people-fill"></i>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="stat-box stat-box-loans">
-            <div class="stat-icon">
-              <i class="bi bi-cash-stack"></i>
-            </div>
-            <h3 id="activeLoans" class="stat-number">342</h3>
-            <p class="stat-label">Active Loans</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="stat-box stat-box-transactions">
-            <div class="stat-icon">
-              <i class="bi bi-arrow-left-right"></i>
-            </div>
-            <h3 id="dailyTransactions" class="stat-number">89</h3>
-            <p class="stat-label">Daily Transactions</p>
-          </div>
+          <h3 id="totalCustomers" class="stat-number">1,248</h3>
+          <p class="stat-label">Total Customers</p>
         </div>
       </div>
+      <div class="col-md-4">
+        <div class="stat-box stat-box-loans">
+          <div class="stat-icon">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <h3 id="activeLoans" class="stat-number">342</h3>
+          <p class="stat-label">Active Loans</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-box stat-box-transactions">
+          <div class="stat-icon">
+            <i class="bi bi-arrow-left-right"></i>
+          </div>
+          <h3 id="dailyTransactions" class="stat-number">89</h3>
+          <p class="stat-label">Daily Transactions</p>
+        </div>
+      </div>
+    </div>
 
-      <!-- ============================
+    <!-- ============================
              RECENT ACTIVITY TABLE
              ============================ -->
-      <div class="content-box mb-4">
-        <h2 class="h5 mb-4 fw-bold">
-          <i class="bi bi-clock-history me-2"></i>Recent Activity
-        </h2>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Action</th>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Loan Approved</td>
-                <td>Rahul Sharma</td>
-                <td>₹5,00,000</td>
-                <td><span class="badge badge-approved">Approved</span></td>
-              </tr>
-              <tr>
-                <td>New Account</td>
-                <td>Amit Kumar</td>
-                <td>₹10,000</td>
-                <td><span class="badge badge-active">Active</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div class="content-box mb-4">
+      <h2 class="h5 mb-4 fw-bold">
+        <i class="bi bi-clock-history me-2"></i>Recent Activity
+      </h2>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Loan Approved</td>
+              <td>Rahul Sharma</td>
+              <td>₹5,00,000</td>
+              <td><span class="badge badge-approved">Approved</span></td>
+            </tr>
+            <tr>
+              <td>New Account</td>
+              <td>Amit Kumar</td>
+              <td>₹10,000</td>
+              <td><span class="badge badge-active">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
 
-      <!-- ============================
+    <!-- ============================
              QUICK ACTIONS
              ============================ -->
-      <div class="content-box mb-4">
-        <h2 class="h5 mb-4 fw-bold">
-          <i class="bi bi-lightning-fill me-2"></i>Quick Actions
-        </h2>
-        <div class="d-flex gap-2 flex-wrap">
-          <a href="customer.html" class="btn btn-action-primary"
-            ><i class="bi bi-person-plus me-1"></i> Add Customer</a
-          >
-          <a href="transaction.html" class="btn btn-action-success"
-            ><i class="bi bi-plus-circle me-1"></i> New Transaction</a
-          >
-          <a href="loan.html" class="btn btn-action-info"
-            ><i class="bi bi-file-earmark-text me-1"></i> Apply Loan</a
-          >
-        </div>
+    <div class="content-box mb-4">
+      <h2 class="h5 mb-4 fw-bold">
+        <i class="bi bi-lightning-fill me-2"></i>Quick Actions
+      </h2>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="../customer/customer.html" class="btn btn-action-primary"><i class="bi bi-person-plus me-1"></i> Add
+          Customer</a>
+        <a href="../transaction/transaction.html" class="btn btn-action-success"><i class="bi bi-plus-circle me-1"></i>
+          New Transaction</a>
+        <a href="../loan/loan.html" class="btn btn-action-info"><i class="bi bi-file-earmark-text me-1"></i> Apply
+          Loan</a>
       </div>
+    </div>
 
-      <!-- ============================
+    <!-- ============================
              UPDATES SECTION
              ============================ -->
-      <!-- <div class="content-box updates-section">
+    <!-- <div class="content-box updates-section">
             <h2 class="h5 mb-4 fw-bold"><i class="bi bi-bell-fill me-2"></i>Recent Updates</h2>
             <ul class="updates-list">
                 <li class="update-item">
@@ -268,28 +245,28 @@
                 </li>
             </ul>
         </div> -->
-    </div>
+  </div>
 
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="profile.js"></script>
-    <script>
-      /* ============================
-           DASHBOARD SCRIPTS
-           ============================ */
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../profile.js"></script>
+  <script>
+    /* ============================
+         DASHBOARD SCRIPTS
+         ============================ */
 
-      // Display current date
-      var d = new Date();
-      document.getElementById("currentDate").textContent = d.toDateString();
+    // Display current date
+    var d = new Date();
+    document.getElementById("currentDate").textContent = d.toDateString();
 
-      // Mobile sidebar toggle
-      function toggleSidebar() {
-        var sidebar = document.getElementById("sidebar");
-        var overlay = document.getElementById("sidebarOverlay");
-        sidebar.classList.toggle("open");
-        overlay.classList.toggle("active");
-      }
-    </script>
-  </body>
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      var sidebar = document.getElementById("sidebar");
+      var overlay = document.getElementById("sidebarOverlay");
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("active");
+    }
+  </script>
+</body>
+
 </html>
-

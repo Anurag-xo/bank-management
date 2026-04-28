@@ -1,8 +1,19 @@
 /* LOAN PAGE SPECIFIC STYLES */
 
-.btn-success { background-color: #198754; color: white; }
-.btn-warning { background-color: #ffc107; color: black; }
-.btn-danger { background-color: #dc3545; color: white; }
+.btn-success {
+    background-color: #198754;
+    color: white;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
 
 .btn:hover {
     opacity: 0.85;

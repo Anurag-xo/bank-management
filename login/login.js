@@ -25,5 +25,5 @@ loginForm.addEventListener('submit', function (e) {
 });
 
 function closeLoginModal() {
-    window.location.href = 'dashboard.html';
+    window.location.href = '../dashboard/dashboard.html';
 }

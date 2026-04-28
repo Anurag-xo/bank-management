@@ -1,0 +1,97 @@
+/* ============================================
+   TRANSACTION HISTORY PAGE CSS
+   ============================================ */
+
+:root {
+  --primary: #163172;
+  --secondary: #1E56A0;
+  --accent: #D6E4F0;
+  --bg: #F6F6F6;
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --text-muted: #6c757d;
+  --font-mono: 'DM Mono', monospace;
+}
+
+.history-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 28px;
+  max-width: 960px;
+}
+
+.history-header {
+  margin-bottom: 24px;
+}
+
+.history-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.history-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* TABLE ROW */
+.history-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.4fr 0.8fr;
+  align-items: center;
+  padding: 14px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+.history-row span {
+  font-weight: 500;
+}
+
+.history-row.header {
+  background: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--primary);
+}
+
+/* AMOUNT */
+.amount {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ACTION BUTTON */
+.action-btn {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--secondary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .history-row.header {
+    display: none;
+  }
+}

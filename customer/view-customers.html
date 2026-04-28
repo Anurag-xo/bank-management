@@ -1,21 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TCS - Transaction History</title>
-
+  <title>TCS - View Customers</title>
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
-    rel="stylesheet" />
-
+  <!-- Shared Layout & Sidebar Styles -->
   <link rel="stylesheet" href="../shared-style.css" />
-  <link rel="stylesheet" href="transaction-history.css" />
+  <!-- Using Dashboard Styles for Table and Badges -->
+  <link rel="stylesheet" href="../dashboard/dashboard.css" />
+  <!-- Page Specific Styles -->
+  <link rel="stylesheet" href="customer.css" />
 </head>
 
 <body>
@@ -45,32 +44,32 @@
 
       <!-- Customers -->
       <li class="nav-item has-dropdown">
-        <a href="../customer/customer.html" class="nav-link">
+        <a href="customer.html" class="nav-link active">
           <i class="bi bi-people-fill"></i> Customers
           <i class="bi bi-chevron-right dropdown-arrow"></i>
         </a>
         <ul class="dropdown-menu">
           <li>
-            <a href="../customer/view-customers.html" class="dropdown-link">View Customers</a>
+            <a href="view-customers.html" class="dropdown-link">View Customers</a>
           </li>
           <li>
-            <a href="../customer/customer.html" class="dropdown-link">Add Customer</a>
+            <a href="customer.html" class="dropdown-link">Add Customer</a>
           </li>
         </ul>
       </li>
 
       <!-- Transactions -->
       <li class="nav-item has-dropdown">
-        <a href="transaction.html" class="nav-link active">
+        <a href="../transaction/transaction.html" class="nav-link">
           <i class="bi bi-arrow-left-right"></i> Transactions
           <i class="bi bi-chevron-right dropdown-arrow"></i>
         </a>
         <ul class="dropdown-menu">
           <li>
-            <a href="transaction-history.html" class="dropdown-link">View Transactions</a>
+            <a href="../transaction/transaction-history.html" class="dropdown-link">View Transactions</a>
           </li>
           <li>
-            <a href="transaction.html" class="dropdown-link">New Transaction</a>
+            <a href="../transaction/transaction.html" class="dropdown-link">New Transaction</a>
           </li>
         </ul>
       </li>
@@ -100,7 +99,7 @@
   <div class="main-content">
     <!-- Header -->
     <div class="header">
-      <h1 class="h3 mb-0">Transaction History</h1>
+      <h1 class="h3 mb-0">Customer List</h1>
       <div class="header-profile">
         <div class="profile-info" id="profileInfo">
           <b>Name:</b> <span id="userName">Employee</span> | <b>ID:</b>
@@ -113,36 +112,66 @@
       </div>
     </div>
 
-    <!-- HISTORY CARD -->
-    <div class="history-card">
-      <div class="history-header">
-        <h2 class="history-title">Recent Transactions</h2>
-        <p class="history-subtitle">Complete log of recorded transactions</p>
+    <div class="content-box">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h5 mb-0 fw-bold"><i class="bi bi-people me-2"></i>Active Customers</h2>
+        <div class="search-box">
+          <input type="text" class="form-control form-control-sm" placeholder="Search customer...">
+        </div>
       </div>
-
-      <!-- TABLE HEADER -->
-      <div class="history-row header">
-        <span>Transaction ID</span>
-        <span>Mode</span>
-        <span>Amount</span>
-        <span>Date & Time</span>
-        <span>Action</span>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>SSN ID</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>123-45-6789</td>
+              <td>Rahul Sharma</td>
+              <td>32</td>
+              <td>Mumbai, MH</td>
+              <td><span class="badge-active">Active</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>987-65-4321</td>
+              <td>Ananya Iyer</td>
+              <td>28</td>
+              <td>Bangalore, KA</td>
+              <td><span class="badge-active">Active</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>456-78-9012</td>
+              <td>Vikram Singh</td>
+              <td>45</td>
+              <td>Delhi, DL</td>
+              <td><span class="badge-active">Active</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-
-      <!-- TRANSACTION ROWS -->
-      <div id="transactionList"></div>
     </div>
   </div>
 
-  <!-- TOAST -->
-  <div id="toast" class="toast-wrapper" style="display: none">
-    <div class="toast-inner" id="toastInner">
-      <span id="toastIcon" class="toast-icon">✓</span>
-      <span id="toastBody" class="toast-text"></span>
-    </div>
-  </div>
-
-  <script src="transaction-history.js"></script>
+  <script src="../script.js"></script>
   <script src="../profile.js"></script>
   <script>
     function toggleSidebar() {
@@ -155,4 +184,3 @@
 </body>
 
 </html>
-``

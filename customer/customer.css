@@ -12,11 +12,21 @@
     gap: 15px;
 }
 
-.btn-add { background-color: #198754; color: white; }
-.btn-edit { background-color: #ffc107; color: black; }
-.btn-delete { background-color: #dc3545; color: white; }
+.btn-add {
+    background-color: #198754;
+    color: white;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
 
 .btn:hover {
     opacity: 0.85;
 }
-

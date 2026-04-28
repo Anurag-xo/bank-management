@@ -33,3 +33,34 @@ function showToast(message, isError) {
         toastContainer.style.display = 'none';
     }, 3000);
 }
+
+// Sidebar Dropdown Toggle Logic
+document.addEventListener('DOMContentLoaded', function() {
+    var dropdownLinks = document.querySelectorAll('.has-dropdown > a');
+    
+    // 1. Handle Click to Toggle
+    dropdownLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            // Only prevent default if we want it to ONLY toggle
+            // If the link has a real href, we might want to navigate
+            // But usually dropdown parents in sidebars only toggle.
+            e.preventDefault(); 
+            var parent = this.parentElement;
+            parent.classList.toggle('open');
+            
+            // Close others
+            document.querySelectorAll('.has-dropdown').forEach(function(item) {
+                if (item !== parent) item.classList.remove('open');
+            });
+        });
+    });
+
+    // 2. Auto-open dropdown if a child link is active or if parent is active
+    var activeLink = document.querySelector('.nav-link.active, .dropdown-link.active');
+    if (activeLink) {
+        var parentDropdown = activeLink.closest('.has-dropdown');
+        if (parentDropdown) {
+            parentDropdown.classList.add('open');
+        }
+    }
+});

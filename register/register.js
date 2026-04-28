@@ -49,6 +49,6 @@ registerForm.addEventListener('submit', function (e) {
 
     // Redirect to dashboard
     setTimeout(function() {
-        window.location.href = 'dashboard.html';
+        window.location.href = '../dashboard/dashboard.html';
     }, 1000);
 });

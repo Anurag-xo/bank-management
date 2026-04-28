@@ -1,172 +1,186 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TCS - Customer Management</title>
-    <!-- Bootstrap 5 -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Shared Layout & Sidebar Styles -->
-    <link rel="stylesheet" href="../shared-style.css" />
-    <!-- Page Specific Styles -->
-    <link rel="stylesheet" href="customer.css" />
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <div class="sidebar bg-dark text-white">
-      <h2 class="text-primary mb-4 text-center fw-bold">TCS Bank</h2>
-      <a href="dashboard.html">Dashboard</a>
-      <a
-        href="javascript:void(0);"
-        onclick="toggleCustomerMenu()"
-        class="dropdown-btn"
-      >
-        Customers ▼
-      </a>
 
-      <div id="customerSubmenu" class="submenu">
-        <a href="view-customers.html">View Customers</a>
-        <a href="customer.html">Add Customer</a>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCS - Customer Management</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- Shared Layout & Sidebar Styles -->
+  <link rel="stylesheet" href="../shared-style.css" />
+  <!-- Page Specific Styles -->
+  <link rel="stylesheet" href="customer.css" />
+</head>
 
-      <a href="transaction.html">Transactions</a>
-      <a href="loan.html">Loans</a>
-      <br />
-      <hr class="text-secondary" />
-      <br />
-      <a href="index.html" class="text-danger">Logout</a>
+<body>
+  <!-- Mobile Menu Toggle Button -->
+  <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- ============================
+         SIDEBAR
+         ============================ -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h2><i class="bi bi-bank brand-icon"></i> TCS Bank</h2>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="header d-flex justify-content-between align-items-center">
-        <div class="page-title-wrapper">
-          <div class="icon-circle">👥</div>
-          <div class="page-title-text">
-            <h1 class="h3 mb-0">Customer Management</h1>
-          </div>
-        </div>
-        <div id="profileInfo" class="small">
+    <ul class="sidebar-nav">
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a href="../dashboard/dashboard.html" class="nav-link">
+          <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+      </li>
+
+      <!-- Customers -->
+      <li class="nav-item has-dropdown">
+        <a href="customer.html" class="nav-link active">
+          <i class="bi bi-people-fill"></i> Customers
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="view-customers.html" class="dropdown-link">View Customers</a>
+          </li>
+          <li>
+            <a href="customer.html" class="dropdown-link">Add Customer</a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Transactions -->
+      <li class="nav-item has-dropdown">
+        <a href="../transaction/transaction.html" class="nav-link">
+          <i class="bi bi-arrow-left-right"></i> Transactions
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="../transaction/transaction-history.html" class="dropdown-link">View Transactions</a>
+          </li>
+          <li>
+            <a href="../transaction/transaction.html" class="dropdown-link">New Transaction</a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Loans -->
+      <li class="nav-item has-dropdown">
+        <a href="../loan/loan.html" class="nav-link">
+          <i class="bi bi-cash-stack"></i> Loans
+          <i class="bi bi-chevron-right dropdown-arrow"></i>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="../loan/loan.html" class="dropdown-link">Apply Loan</a></li>
+          <li><a href="../loan/loan-status.html" class="dropdown-link">Loan Status</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- Logout at Bottom -->
+    <div class="sidebar-logout">
+      <a href="../landing/index.html" class="nav-link">
+        <i class="bi bi-box-arrow-left"></i> Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="h3 mb-0">Customer Management</h1>
+      <div class="header-profile">
+        <div class="profile-info" id="profileInfo">
           <b>Name:</b> <span id="userName">Employee</span> | <b>ID:</b>
           <span id="userId">0000000</span>
         </div>
-      </div>
-
-      <div class="content-box shadow-sm">
-        <h2 class="h5 mb-4 fw-bold">Manage Customers</h2>
-        <form id="customerForm" onsubmit="return false;">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold small">Customer SSN ID</label>
-              <input
-                type="text"
-                id="customerSsn"
-                class="form-control"
-                placeholder="Enter SSN"
-                required
-              />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold small">Customer Name</label>
-              <input
-                type="text"
-                id="customerName"
-                class="form-control"
-                placeholder="Enter Name"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold small">Account Number</label>
-              <input
-                type="text"
-                id="accountNumber"
-                class="form-control"
-                placeholder="Enter Account No"
-              />
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label fw-bold small">Email Address</label>
-              <input
-                type="email"
-                id="customerEmail"
-                class="form-control"
-                placeholder="Enter Email"
-              />
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-bold small">Address</label>
-            <textarea
-              id="customerAddress"
-              class="form-control"
-              rows="2"
-              placeholder="Enter Address"
-            ></textarea>
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label fw-bold small">Contact Number</label>
-            <input
-              type="text"
-              id="customerContact"
-              class="form-control"
-              maxlength="10"
-              placeholder="Enter Contact"
-            />
-          </div>
-
-          <div class="d-flex gap-2 mt-4">
-            <button
-              type="button"
-              class="btn btn-success px-4 fw-bold"
-              onclick="handleCustomerAction('add')"
-            >
-              Add
-            </button>
-            <button
-              type="button"
-              class="btn btn-warning px-4 fw-bold"
-              onclick="handleCustomerAction('edit')"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger px-4 fw-bold"
-              onclick="handleCustomerAction('delete')"
-            >
-              Delete
-            </button>
-          </div>
-        </form>
+        <!-- Profile Icon Button -->
+        <a href="#" class="profile-icon-btn" title="My Profile">
+          <i class="bi bi-person-fill"></i>
+        </a>
       </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div
-      id="toast"
-      class="position-fixed top-0 end-0 p-3"
-      style="z-index: 1060; display: none"
-    >
-      <div class="toast show align-items-center text-white bg-dark border-0">
-        <div class="d-flex">
-          <div class="toast-body" id="toastBody"></div>
+    <div class="content-box shadow-sm">
+      <h2 class="h5 mb-4 fw-bold">Manage Customers</h2>
+      <form id="customerForm" onsubmit="return false;">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold small">Customer SSN ID</label>
+            <input type="text" id="customerSsn" class="form-control" placeholder="Enter SSN" required />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold small">Customer Name</label>
+            <input type="text" id="customerName" class="form-control" placeholder="Enter Name" required />
+          </div>
         </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold small">Account Number</label>
+            <input type="text" id="accountNumber" class="form-control" placeholder="Enter Account No" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold small">Email Address</label>
+            <input type="email" id="customerEmail" class="form-control" placeholder="Enter Email" />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Address</label>
+          <textarea id="customerAddress" class="form-control" rows="2" placeholder="Enter Address"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-bold small">Contact Number</label>
+          <input type="text" id="customerContact" class="form-control" maxlength="10" placeholder="Enter Contact" />
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="button" class="btn btn-success px-4 fw-bold" onclick="handleCustomerAction('add')">
+            Add
+          </button>
+          <button type="button" class="btn btn-warning px-4 fw-bold" onclick="handleCustomerAction('edit')">
+            Edit
+          </button>
+          <button type="button" class="btn btn-danger px-4 fw-bold" onclick="handleCustomerAction('delete')">
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="position-fixed top-0 end-0 p-3" style="z-index: 1060; display: none">
+    <div class="toast show align-items-center text-white bg-dark border-0">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody"></div>
       </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
-    <script src="customer.js"></script>
-    <script src="profile.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../script.js"></script>
+  <script src="customer.js"></script>
+  <script src="../profile.js"></script>
+  <script>
+    function toggleSidebar() {
+      var sidebar = document.getElementById("sidebar");
+      var overlay = document.getElementById("sidebarOverlay");
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("active");
+    }
+  </script>
+</body>
+
 </html>
-

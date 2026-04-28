@@ -1,13 +1,36 @@
 /* ==============================================
    SHARED STYLES FOR ALL INTERNAL PAGES 
    (Dashboard, Customers, Transactions, Loans)
-   
-   COLOR SYSTEM:
-   Primary:    #163172 (deep blue)
-   Secondary:  #1E56A0
-   Accent:     #D6E4F0
-   Background: #F6F6F6
    ============================================== */
+
+:root {
+    /* Core Colors */
+    --primary: #163172;
+    --primary-light: #1e56a0;
+    --primary-dark: #0f224a;
+    --secondary: #1E56A0;
+    --accent: #D6E4F0;
+    --background: #F6F6F6;
+    --surface: #ffffff;
+    
+    /* Text Colors */
+    --text-main: #2d2d2d;
+    --text-muted: #6c757d;
+    --text-light: #ffffff;
+    
+    /* UI Elements */
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(22, 49, 114, 0.08);
+    --radius-lg: 12px;
+    --radius-md: 8px;
+    
+    /* Status Colors */
+    --success: #1a8754;
+    --warning: #e6a817;
+    --danger: #dc3545;
+    --info: #0dcaf0;
+}
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -15,328 +38,293 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
 
 body {
-    font-family: 'Inter', Arial, sans-serif;
-    background-color: #F6F6F6;
-    display: flex; /* Puts Sidebar and Content side-by-side */
-    color: #2d2d2d;
+    background-color: var(--background);
+    color: var(--text-main);
+    overflow-x: hidden;
 }
 
 /* ============================
-   SIDEBAR STYLING
+   SIDEBAR STYLES
    ============================ */
 .sidebar {
     width: 260px;
-    background-color: #163172; /* Primary Color */
-    color: white;
     height: 100vh;
-    padding: 28px 16px;
+    background-color: var(--primary);
+    color: white;
     position: fixed;
     left: 0;
     top: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
-    z-index: 1000;
-    overflow-y: auto;
-    transition: transform 0.3s ease;
+}
+
+.sidebar.open {
+    left: 0;
 }
 
 .sidebar-brand {
-    text-align: center;
-    padding-bottom: 24px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 30px 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-brand h2 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #D6E4F0;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-brand .brand-icon {
     font-size: 1.5rem;
-    margin-right: 6px;
-}
-
-/* Sidebar Navigation */
-.sidebar-nav {
-    flex: 1;
-    padding: 0;
-    list-style: none;
-}
-
-.sidebar-nav .nav-item {
-    position: relative;
-    margin-bottom: 2px;
-}
-
-.sidebar-nav .nav-link {
+    font-weight: 700;
+    margin: 0;
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: rgba(255, 255, 255, 0.72);
-    text-decoration: none;
-    padding: 11px 16px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    gap: 12px;
 }
 
-.sidebar-nav .nav-link i {
-    font-size: 1.05rem;
-    width: 20px;
-    text-align: center;
+.brand-icon {
+    font-size: 1.8rem;
+    color: var(--accent);
 }
 
-.sidebar-nav .nav-link:hover {
-    background-color: #1E56A0; /* Secondary Color */
-    color: #ffffff;
-}
-
-.sidebar-nav .nav-link.active {
-    background-color: #1E56A0; /* Secondary Color */
-    color: #ffffff;
-    font-weight: 600;
-}
-
-/* Sidebar Hover Dropdown Menus */
-.sidebar-nav .nav-item.has-dropdown .dropdown-menu {
-    display: none;
+.sidebar-nav {
     list-style: none;
-    padding: 6px 0;
-    margin: 0;
-    background-color: #1a3f7a;
-    border-radius: 6px;
-    overflow: hidden;
+    padding: 20px 0;
+    flex: 1;
+    overflow-y: auto;
 }
 
-.sidebar-nav .nav-item.has-dropdown:hover .dropdown-menu {
-    display: block;
+.nav-item {
+    margin-bottom: 5px;
 }
 
-.sidebar-nav .dropdown-menu .dropdown-link {
-    display: block;
-    color: rgba(255, 255, 255, 0.65);
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 25px;
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    padding: 8px 16px 8px 46px;
-    font-size: 0.82rem;
-    font-weight: 400;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.sidebar-nav .dropdown-menu .dropdown-link:hover {
-    background-color: #1E56A0;
-    color: #ffffff;
-}
-
-.sidebar-nav .nav-link .dropdown-arrow {
-    margin-left: auto;
-    font-size: 0.7rem;
-    transition: transform 0.25s ease;
-    opacity: 0.6;
-}
-
-.sidebar-nav .nav-item.has-dropdown:hover .dropdown-arrow {
-    transform: rotate(90deg);
-    opacity: 1;
-}
-
-/* Sidebar Divider */
-.sidebar-divider {
-    border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 16px 8px;
-}
-
-/* Sidebar Logout */
-.sidebar-logout {
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-logout .nav-link {
-    color: rgba(220, 90, 90, 0.85);
+    transition: all 0.2s;
     font-weight: 500;
+    position: relative;
 }
 
-.sidebar-logout .nav-link:hover {
-    background-color: rgba(220, 53, 69, 0.15);
-    color: #ff6b6b;
+.nav-link i {
+    font-size: 1.2rem;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: var(--accent);
+}
+
+/* Dropdown Styles */
+.has-dropdown .dropdown-arrow {
+    margin-left: auto;
+    font-size: 0.8rem;
+    transition: transform 0.3s;
+}
+
+.has-dropdown.open .dropdown-arrow {
+    transform: rotate(90deg);
+}
+
+.dropdown-menu {
+    list-style: none;
+    background-color: var(--primary-dark); /* Solid background, no transparency */
+    padding: 8px 0;
+    display: none;
+    border-left: 3px solid var(--accent);
+    margin-left: 5px;
+}
+
+.has-dropdown.open .dropdown-menu {
+    display: block;
+}
+
+.dropdown-link {
+    display: block;
+    padding: 10px 25px 10px 65px; /* More to the right */
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+}
+
+.dropdown-link:hover {
+    color: white;
+}
+
+.sidebar-logout {
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================
+   MAIN CONTENT AREA
+   ============================ */
+.main-content {
+    margin-left: 260px;
+    padding: 30px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-info {
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+.profile-icon-btn {
+    width: 42px;
+    height: 42px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.profile-icon-btn:hover {
+    background-color: var(--accent);
+    transform: scale(1.05);
+}
+
+/* ============================
+   UI COMPONENTS
+   ============================ */
+.content-box {
+    background: white;
+    padding: 25px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 25px;
 }
 
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
     display: none;
     position: fixed;
-    top: 14px;
-    left: 14px;
+    top: 20px;
+    left: 20px;
     z-index: 1100;
-    background-color: #163172;
+    width: 45px;
+    height: 45px;
+    background-color: var(--primary);
     color: white;
     border: none;
     border-radius: 8px;
-    width: 42px;
-    height: 42px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(22, 49, 114, 0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Sidebar Overlay (mobile) */
 .sidebar-overlay {
     display: none;
     position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
     z-index: 999;
 }
 
 /* ============================
-   MAIN CONTENT LAYOUT
+   GLOBAL BUTTON OVERRIDES (Blue Palette)
    ============================ */
-.main-content {
-    margin-left: 260px;
-    width: calc(100% - 260px);
-    padding: 28px 32px;
-    min-height: 100vh;
+.btn-success {
+    background-color: var(--primary) !important;
+    border: none !important;
+    color: white !important;
 }
 
-/* ============================
-   PAGE HEADER BAR
-   ============================ */
-.header {
-    background-color: #ffffff;
-    padding: 18px 28px;
-    border-radius: 10px;
-    margin-bottom: 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+.btn-warning {
+    background-color: var(--secondary) !important;
+    border: none !important;
+    color: white !important;
 }
 
-.header h1 {
-    color: #163172;
-    font-weight: 700;
-    font-size: 1.3rem;
+.btn-danger {
+    background-color: #4a6fa5 !important; /* Lighter Blue for variety */
+    border: none !important;
+    color: white !important;
 }
 
-/* Profile Area in Header */
-.header-profile {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+.btn-primary {
+    background-color: var(--primary-dark) !important;
+    border: none !important;
+    color: white !important;
 }
 
-.header-profile .profile-info {
-    text-align: right;
-    font-size: 0.82rem;
-    color: #555;
-    line-height: 1.4;
-}
-
-.header-profile .profile-info b {
-    color: #163172;
-}
-
-.header-profile .profile-icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #163172, #1E56A0);
-    color: white;
-    text-decoration: none;
-    font-size: 1.1rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 8px rgba(22, 49, 114, 0.25);
-}
-
-.header-profile .profile-icon-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 4px 14px rgba(22, 49, 114, 0.35);
-}
-
-/* ============================
-   COMMON CONTAINER BOX
-   ============================ */
-.content-box {
-    background-color: #ffffff;
-    padding: 28px;
-    border-radius: 10px;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    margin-bottom: 24px;
-}
-
-.content-box h2 {
-    border-bottom: 2px solid #D6E4F0;
-    padding-bottom: 14px;
-    margin-bottom: 22px;
-    color: #163172;
-    font-weight: 700;
-    font-size: 1.05rem;
+.btn:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(22, 49, 114, 0.2);
+    transition: all 0.2s ease;
 }
 
 /* ============================
    RESPONSIVE DESIGN
    ============================ */
-
-/* Tablet */
-@media (max-width: 991px) {
-    .main-content {
-        padding: 24px 20px;
+@media (max-width: 992px) {
+    .sidebar {
+        left: -260px;
     }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
+    
+    .sidebar.open {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 80px 20px 30px 20px;
+    }
+    
     .mobile-menu-toggle {
         display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
+    
     .sidebar-overlay.active {
         display: block;
     }
-
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 70px 16px 24px 16px;
-    }
-
+    
     .header {
         flex-direction: column;
-        gap: 12px;
-        text-align: center;
-        padding: 16px 20px;
+        align-items: flex-start;
+        gap: 15px;
     }
-
+    
     .header-profile {
         width: 100%;
-        justify-content: center;
-    }
-
-    .header-profile .profile-info {
-        text-align: center;
+        justify-content: space-between;
     }
 }
