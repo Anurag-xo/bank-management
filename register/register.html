@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCS Bank - Registration</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
+
+    <div class="register-box shadow">
+        <h1 class="text-success fw-bold">TCS Bank</h1>
+        <p>Employee Registration Form</p>
+
+        <form id="registerForm">
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold">Employee ID (Generated)</label>
+                <input type="text" id="empId" class="form-control bg-light" readonly>
+            </div>
+
+            <!-- Bootstrap Grid for Rows -->
+            <div class="row">
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label fw-bold">First Name</label>
+                    <input type="text" id="firstName" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label fw-bold">Last Name</label>
+                    <input type="text" id="lastName" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold">Email Address</label>
+                <input type="email" id="email" class="form-control" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label fw-bold">Password</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3 text-start">
+                    <label class="form-label fw-bold">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold">Address</label>
+                <textarea id="address" class="form-control" rows="2" required></textarea>
+            </div>
+
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold">Contact Number</label>
+                <input type="text" id="contact" class="form-control" maxlength="10" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-2 mt-2 fw-bold">Register Now</button>
+        </form>
+
+        <div class="mt-4">
+            <p class="small text-muted">Already registered? <a href="login.html" class="text-decoration-none fw-bold text-success">Login here</a></p>
+            <a href="index.html" class="small text-decoration-none">← Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="position-fixed top-0 end-0 p-3" style="z-index: 1060; display: none;">
+        <div class="toast show align-items-center text-white bg-dark border-0">
+            <div class="d-flex">
+                <div class="toast-body" id="toastBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script src="register.js"></script>
+</body>
+</html>
