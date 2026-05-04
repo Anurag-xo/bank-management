@@ -1,54 +1,45 @@
-/* =============================================
-   REGISTER PAGE JavaScript (register.html)
-   ============================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('regName').value;
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const phone = document.getElementById('regPhone').value;
+        const address = document.getElementById('regAddress').value;
+        const password = document.getElementById('regPassword').value;
+        const role = document.getElementById('regRole').value;
+        const errorMsg = document.getElementById('regError');
 
-// Get form elements
-var empIdField = document.getElementById('empId');
-var registerForm = document.getElementById('registerForm');
-var successMessage = document.getElementById('successMessage');
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        const exists = users.find(u => u.username === username);
 
-// Auto-generate Employee ID on page load
-empIdField.value = generateEmployeeId();
+        if (exists) {
+            errorMsg.style.display = 'block';
+            return;
+        }
 
-// Handle registration form submission
-registerForm.addEventListener('submit', function (e) {
-    e.preventDefault();
+        const newUser = {
+            id: new Date().getTime(),
+            role: role,
+            username: username,
+            password: password,
+            name: name,
+            email: email,
+            phone: phone,
+            address: address
+        };
 
-    var firstName = document.getElementById('firstName').value.trim();
-    var lastName = document.getElementById('lastName').value.trim();
-    var email = document.getElementById('email').value.trim();
-    var password = document.getElementById('password').value;
-    var confirmPassword = document.getElementById('confirmPassword').value;
-    var address = document.getElementById('address').value.trim();
-    var contact = document.getElementById('contact').value.trim();
+        // Basic default fields for customer
+        if (role === 'customer') {
+            newUser.balance = 0;
+            newUser.cibil = Math.floor(Math.random() * (850 - 300 + 1)) + 300; // Random CIBIL 300-850
+            newUser.status = 'active'; 
+        }
 
-    // Validate required fields
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !address || !contact) {
-        showToast('Please fill in all fields.', true);
-        return;
-    }
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
 
-    // Validate password match
-    if (password !== confirmPassword) {
-        showToast('Passwords do not match!', true);
-        return;
-    }
-
-    // Validate contact number (10 digits)
-    if (contact.length !== 10 || isNaN(contact)) {
-        showToast('Contact number must be exactly 10 digits.', true);
-        return;
-    }
-
-    // Save employee info to localStorage
-    localStorage.setItem('bms_empId', empIdField.value);
-    localStorage.setItem('bms_empName', firstName + ' ' + lastName);
-    localStorage.setItem('bms_empEmail', email);
-
-    showToast('TCS Bank registration successful! Redirecting...', false);
-
-    // Redirect to dashboard
-    setTimeout(function() {
-        window.location.href = '../dashboard/dashboard.html';
-    }, 1000);
+        alert('Registration successful! Please login.');
+        window.location.href = '../login/login.html';
+    });
 });

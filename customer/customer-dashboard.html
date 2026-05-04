@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Bank - Customer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../shared-style.css">
+</head>
+<body>
+    <script src="../assets/navbar.js"></script>
+    <script src="../assets/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAccess('customer');
+        });
+    </script>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="../assets/sentinel_logo.png" alt="Logo">
+            <span>Sentinel</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('profile')">
+                    <i class="bi bi-person-fill"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('transactions')">
+                    <i class="bi bi-arrow-left-right"></i> Transactions
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('transfers')">
+                    <i class="bi bi-send-fill"></i> Send Money
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('loans')">
+                    <i class="bi bi-cash-stack"></i> Apply for Loan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('services')">
+                    <i class="bi bi-grid-fill"></i> Services & Cards
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Overview -->
+        <div id="dashboardSection">
+            <h2 class="mb-4">Account Overview</h2>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card gold">
+                        <div class="icon-wrapper"><i class="bi bi-wallet2"></i></div>
+                        <h3 id="accBalance">₹0</h3>
+                        <p>Available Balance</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card dark">
+                        <div class="icon-wrapper"><i class="bi bi-speedometer2"></i></div>
+                        <h3 id="accCibil">0</h3>
+                        <p>CIBIL Score</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card dark">
+                        <div class="icon-wrapper"><i class="bi bi-credit-card"></i></div>
+                        <h3>Active</h3>
+                        <p>Debit Card Status (**** 1234)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-box mb-4" style="border-left: 5px solid var(--secondary);">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="background: rgba(232, 211, 133, 0.2); padding: 15px; border-radius: 12px; color: #B89B2D;">
+                        <i class="bi bi-gift-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1" style="font-weight: 700; color: var(--primary);">Special Offer for You</h4>
+                        <p class="text-muted mb-0">Get a Pre-approved Personal Loan up to ₹5,00,000 at 10.5% p.a. Apply easily from the Loans section.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" style="display:none;">
+            <h2 class="mb-4">My Profile</h2>
+            <div class="content-box" style="max-width: 700px;">
+                <form id="profileForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="profName" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Username (Cannot be changed)</label>
+                            <input type="text" id="profUser" class="form-control" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="profEmail" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" id="profPhone" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Residential Address</label>
+                        <input type="text" id="profAddress" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 py-3">
+                        <i class="bi bi-pencil-square me-2"></i> Request Profile Update
+                    </button>
+                    <p class="text-muted mt-3 text-center" style="font-size: 0.85rem;">Note: Updates require Employee approval before reflecting permanently.</p>
+                </form>
+            </div>
+            
+            <h3 class="mt-5 mb-3">Pending Update Requests</h3>
+            <div class="content-box">
+                <table class="table">
+                    <thead><tr><th>Request ID</th><th>Status</th></tr></thead>
+                    <tbody id="profileUpdatesBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div id="transactionsSection" style="display:none;">
+            <h2 class="mb-4">Recent Transactions</h2>
+            <div class="content-box">
+                <table class="table">
+                    <thead><tr><th>Tx ID</th><th>Type</th><th>Amount</th><th>Date</th></tr></thead>
+                    <tbody id="txBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transfers Section -->
+        <div id="transfersSection" style="display:none;">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2 class="mb-4">Send Money</h2>
+                    <div class="content-box">
+                        <form id="transferForm">
+                            <div class="mb-4">
+                                <label class="form-label">Beneficiary Account Number</label>
+                                <input type="number" id="transferAcc" class="form-control" required placeholder="e.g. 1000000005">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">IFSC Code</label>
+                                <input type="text" id="transferIfsc" class="form-control" required placeholder="e.g. SENT0001234">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Amount (₹)</label>
+                                <input type="number" id="transferAmount" class="form-control" required placeholder="e.g. 5000">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3"><i class="bi bi-send-fill me-2"></i>Transfer Securely</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans Section -->
+        <div id="loansSection" style="display:none;">
+            <div class="row">
+                <div class="col-md-5">
+                    <h2 class="mb-4">Apply for Loan</h2>
+                    <div class="content-box">
+                        <form id="loanForm">
+                            <div class="mb-4">
+                                <label class="form-label">Loan Type</label>
+                                <select id="loanType" class="form-select" onchange="updateInterestRate()" required>
+                                    <option value="" disabled selected>Select Loan Type...</option>
+                                    <option value="Personal Loan" data-rate="10.5">Personal Loan</option>
+                                    <option value="Home Loan" data-rate="8.5">Home Loan</option>
+                                    <option value="Education Loan" data-rate="7.0">Education Loan</option>
+                                    <option value="Marriage Loan" data-rate="12.0">Marriage Loan</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Loan Amount (₹)</label>
+                                <input type="number" id="loanAmount" class="form-control" required placeholder="e.g. 100000">
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-4">
+                                    <label class="form-label">Annual Interest (%)</label>
+                                    <input type="number" step="0.1" id="loanInterest" class="form-control" required placeholder="e.g. 8.5">
+                                </div>
+                                <div class="col-6 mb-4">
+                                    <label class="form-label">Timeline (Months)</label>
+                                    <input type="number" id="loanTimeline" class="form-control" required placeholder="e.g. 24">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Supporting Documents</label>
+                                <input type="file" id="loanDoc" class="form-control" required>
+                                <small class="text-muted">Upload income proof, KYC, etc. (Mocked)</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3">Submit Application</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <h2 class="mb-4">My Loans History</h2>
+                    <div class="content-box">
+                        <table class="table">
+                            <thead><tr><th>Loan ID</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody id="myLoansBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services & Cards Section -->
+        <div id="servicesSection" style="display:none;">
+            <h2 class="mb-4">Apply for Services & Cards</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="content-box text-center h-100">
+                        <i class="bi bi-credit-card-2-front text-primary mb-3" style="font-size: 3rem;"></i>
+                        <h4 class="mb-2">Credit Card</h4>
+                        <p class="text-muted small mb-4">Get up to 5% cashback on daily spends.</p>
+                        <button class="btn btn-outline-primary w-100" onclick="applyForService('Credit Card')">Apply Now</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="content-box text-center h-100">
+                        <i class="bi bi-credit-card text-success mb-3" style="font-size: 3rem;"></i>
+                        <h4 class="mb-2">Debit Card Upgrade</h4>
+                        <p class="text-muted small mb-4">Upgrade to Platinum Debit for lounge access.</p>
+                        <button class="btn btn-outline-success w-100" onclick="applyForService('Platinum Debit Card')">Apply Now</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="content-box text-center h-100">
+                        <i class="bi bi-piggy-bank text-warning mb-3" style="font-size: 3rem;"></i>
+                        <h4 class="mb-2">Fixed Deposit (FD)</h4>
+                        <p class="text-muted small mb-4">Secure returns up to 7.5% p.a.</p>
+                        <button class="btn btn-outline-warning w-100 text-dark" onclick="applyForService('Fixed Deposit')">Open FD</button>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="mt-5 mb-3">My Service Requests</h3>
+            <div class="content-box">
+                <table class="table">
+                    <thead><tr><th>Request ID</th><th>Service Type</th><th>Status</th><th>Date Applied</th><th>Actions</th></tr></thead>
+                    <tbody id="servicesBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center" style="border: none; border-top: 5px solid #28a745;">
+          <div class="modal-body p-5">
+            <div class="mb-3">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="mb-3">Success!</h4>
+            <p class="text-muted mb-4" id="successModalMessage">Your request has been submitted.</p>
+            <button type="button" class="btn btn-success px-4 py-2" data-bs-dismiss="modal">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center" style="border: none; border-top: 5px solid #dc3545;">
+          <div class="modal-body p-5">
+            <div class="mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="mb-3">Confirm Action</h4>
+            <p class="text-muted mb-4" id="confirmModalMessage">Are you sure you want to proceed?</p>
+            <div class="d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" onclick="executeConfirm()">Yes, Proceed</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="customer.js"></script>
+</body>
+</html>

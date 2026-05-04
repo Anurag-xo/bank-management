@@ -1,29 +1,21 @@
-/* LOGIN PAGE JS */
-
-var loginForm = document.getElementById('loginForm');
-
-loginForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    var empId = document.getElementById('loginEmpId').value.trim();
-    var password = document.getElementById('loginPassword').value;
-
-    if (empId === "" || password === "") {
-        showToast('Please enter Employee ID and Password.', true);
-        return;
+document.addEventListener('DOMContentLoaded', () => {
+    // If already logged in, redirect
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (user) {
+        window.location.href = `../${user.role}/${user.role}-dashboard.html`;
     }
 
-    // Save info
-    localStorage.setItem('bms_empId', empId);
-    localStorage.setItem('bms_empName', 'TCS Employee');
-    localStorage.setItem('bms_empEmail', empId + '@tcsbank.com');
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const userVal = document.getElementById('username').value;
+        const passVal = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMsg');
 
-    // Show Bootstrap Modal
-    var modalEl = document.getElementById('loginModal');
-    var modalInstance = new bootstrap.Modal(modalEl);
-    modalInstance.show();
+        const loggedInUser = login(userVal, passVal);
+        if (loggedInUser) {
+            window.location.href = `../${loggedInUser.role}/${loggedInUser.role}-dashboard.html`;
+        } else {
+            errorMsg.style.display = 'block';
+        }
+    });
 });
-
-function closeLoginModal() {
-    window.location.href = '../dashboard/dashboard.html';
-}

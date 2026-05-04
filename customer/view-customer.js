@@ -11,7 +11,7 @@
 <body>
 
 <div class="sidebar">
-    <h2>TCS Bank</h2>
+    <h2>Sentinel Bank</h2>
     <a href="dashboard.html">Dashboard</a>
     <a href="customer.html">Add Customer</a>
     <a href="view-customers.html" class="active">View Customers</a>

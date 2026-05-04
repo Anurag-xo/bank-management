@@ -1,95 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TCS Bank - Registration</title>
-    <!-- Bootstrap 5 -->
+    <title>Sentinel Bank - Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Shared Styles -->
     <link rel="stylesheet" href="../shared-style.css">
-    <link rel="stylesheet" href="register.css">
+    <style>
+        body {
+            background-color: var(--background);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .split-layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .split-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .split-left::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(238, 233, 169, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .split-left::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(245, 240, 204, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .brand-content {
+            z-index: 2;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .brand-icon-large {
+            font-size: 5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .brand-title {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+
+        .brand-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .split-right {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background-color: var(--background);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 550px;
+            background: var(--surface);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .login-card-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .login-card-header h3 {
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 2rem;
+        }
+
+        .form-floating>label {
+            color: var(--text-muted);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            padding: 1rem 0.75rem;
+            background-color: #faf9f5;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+            background-color: var(--surface);
+        }
+
+        .btn-login {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            border: none;
+        }
+
+        .btn-login:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            color: white;
+        }
+
+        /* Custom Scrollbar for the form */
+        .login-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .login-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .login-card::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .split-layout {
+                flex-direction: column;
+            }
+
+            .split-left {
+                flex: none;
+                padding: 60px 20px;
+            }
+
+            .brand-title {
+                font-size: 2.5rem;
+            }
+
+            .split-right {
+                padding: 40px 20px;
+            }
+
+            .login-card {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
+    </style>
 </head>
-<body class="auth-page">
 
-    <div class="auth-container">
-        <div class="auth-box shadow-lg" style="max-width: 500px;">
-            <div class="auth-header text-center mb-4">
-                <div class="auth-logo mb-3">
-                    <i class="bi bi-person-plus-fill"></i>
-                </div>
-                <h1 class="h3 fw-bold mb-1">Join TCS Bank</h1>
-                <p class="text-muted small">Employee Registration Form</p>
-            </div>
+<body>
+    <script src="../assets/navbar.js"></script>
+    <script src="../assets/auth.js"></script>
 
-            <form id="registerForm">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Employee ID (Auto-Generated)</label>
-                    <input type="text" id="empId" class="form-control bg-light" readonly>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">First Name</label>
-                        <input type="text" id="firstName" class="form-control" placeholder="First" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Last Name</label>
-                        <input type="text" id="lastName" class="form-control" placeholder="Last" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="name@tcsbank.com" required>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Password</label>
-                        <input type="password" id="password" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Confirm</label>
-                        <input type="password" id="confirmPassword" class="form-control" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Address</label>
-                    <textarea id="address" class="form-control" rows="2" placeholder="Full residential address" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label small fw-bold">Contact Number</label>
-                    <input type="text" id="contact" class="form-control" maxlength="10" placeholder="10-digit mobile" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                    Create Account <i class="bi bi-check2-circle"></i>
-                </button>
-            </form>
-
-            <div class="auth-footer mt-4 text-center">
-                <p class="small text-muted mb-2">Already have an account? <a href="../login/login.html" class="text-primary fw-bold text-decoration-none">Login here</a></p>
-                <a href="../landing/index.html" class="small text-muted text-decoration-none"><i class="bi bi-house-door me-1"></i> Back to Home</a>
+    <div class="split-layout">
+        <!-- Left Side: Branding -->
+        <div class="split-left">
+            <div class="brand-content">
+                <img src="../assets/sentinel_logo.png" alt="Sentinel Bank Logo" style="height: 240px; width: 240px; border-radius: 30px; margin-bottom: 35px; animation: float 6s ease-in-out infinite;">
+                <h1 class="brand-title">Join Sentinel Bank</h1>
+                <p class="brand-subtitle">Create your account today and unlock a world of seamless, secure, and modern
+                    banking.</p>
             </div>
         </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="position-fixed top-0 end-0 p-3" style="z-index: 1060; display: none;">
-        <div class="toast show align-items-center text-white bg-dark border-0">
-            <div class="d-flex">
-                <div class="toast-body" id="toastBody"></div>
+        <!-- Right Side: Register Form -->
+        <div class="split-right">
+            <div class="login-card">
+                <div class="login-card-header">
+                    <h3>Create an Account</h3>
+                    <p class="text-muted">Enter your details to get started.</p>
+                </div>
+
+                <form id="registerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="regName" placeholder="Full Name" required>
+                                <label for="regName"><i class="bi bi-person-badge me-2"></i>Full Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="regUsername" placeholder="Username"
+                                    required>
+                                <label for="regUsername"><i class="bi bi-person me-2"></i>Username</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="regEmail" placeholder="Email" required>
+                                <label for="regEmail"><i class="bi bi-envelope me-2"></i>Email Address</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                <input type="tel" class="form-control" id="regPhone" placeholder="Phone Number"
+                                    required>
+                                <label for="regPhone"><i class="bi bi-telephone me-2"></i>Phone Number</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="regAddress" placeholder="Address" required>
+                        <label for="regAddress"><i class="bi bi-geo-alt me-2"></i>Residential Address</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="regPassword" placeholder="Password" required>
+                        <label for="regPassword"><i class="bi bi-lock me-2"></i>Password</label>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted ms-2 mb-2" style="font-size: 0.9rem;">Register As</label>
+                        <select id="regRole" class="form-select">
+                            <option value="customer">Customer</option>
+                            <option value="employee">Employee</option>
+                        </select>
+                    </div>
+
+                    <div id="regError" class="alert alert-danger"
+                        style="display:none; font-size: 0.9rem; border-radius: 10px;">
+                        <i class="bi bi-exclamation-circle me-2"></i> Username already exists!
+                    </div>
+
+                    <button type="submit" class="btn btn-login w-100">Register</button>
+
+                    <div class="text-center mt-4">
+                        <span class="text-muted">Already have an account?</span>
+                        <a href="../login/login.html" class="text-decoration-none fw-bold ms-1"
+                            style="color: var(--primary);">Sign In</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../script.js"></script>
     <script src="register.js"></script>
 </body>
+
 </html>
