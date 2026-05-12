@@ -1,0 +1,86 @@
+<app-navbar></app-navbar>
+
+<div class="auth-layout">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="assets/sentinel_logo.png" alt="Logo" class="auth-logo">
+      <h1>Join Sentinel Bank</h1>
+      <p>Create your account today and unlock a world of seamless, secure, and modern banking.</p>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-icon">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h2>Create an Account</h2>
+        <p>Enter your details to get started.</p>
+      </div>
+
+      <div class="success-screen" *ngIf="successMessage">
+        <div class="success-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h3>Registration Successful!</h3>
+        <p>Please note down your unique User ID below. You will need this to log in.</p>
+        
+        <div class="generated-id-box">
+          <small>YOUR USER ID</small>
+          <div class="id-value">{{ generatedUsername }}</div>
+        </div>
+
+        <p class="redirect-text">Redirecting to login in a few seconds...</p>
+        <button class="btn-auth" routerLink="/login">Go to Login Now</button>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="auth-form" *ngIf="!successMessage">
+        <div class="form-group">
+          <label><i class="bi bi-person-badge"></i> Full Name</label>
+          <input type="text" [(ngModel)]="name" name="name" placeholder="Full Name" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="bi bi-envelope"></i> Email</label>
+            <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <label><i class="bi bi-telephone"></i> Phone</label>
+            <input type="tel" [(ngModel)]="phone" name="phone" placeholder="Phone" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-geo-alt"></i> Address</label>
+          <input type="text" [(ngModel)]="address" name="address" placeholder="Residential Address" required>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-lock"></i> Password</label>
+          <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-person-gear"></i> Register As</label>
+          <select [(ngModel)]="role" name="role" class="form-select">
+            <option value="customer">Customer</option>
+            <option value="employee">Employee</option>
+          </select>
+        </div>
+
+        <div class="error-message" *ngIf="errorVisible">
+          <i class="bi bi-exclamation-circle"></i> Registration failed. Please try again.
+        </div>
+
+        <button type="submit" class="btn-auth" [disabled]="!name || !email || !phone || !address || !password">Register</button>
+
+        <div class="auth-footer">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

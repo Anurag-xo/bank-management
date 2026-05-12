@@ -1,0 +1,45 @@
+<header class="dashboard-header">
+  <div class="header-left">
+    <!-- Optional: Breadcrumbs or Page Title could go here -->
+  </div>
+
+  <div class="header-right">
+    <div class="notifications-wrapper">
+      <button class="notif-btn" [class.has-unread]="unreadCount > 0" (click)="toggleNotifications()">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+      
+      <div class="notif-dropdown" *ngIf="showNotifications">
+        <div class="notif-header">
+          <span>Notifications</span>
+        </div>
+        <div class="notif-list">
+          <div class="notif-item" *ngFor="let n of notifications">
+            <div class="notif-dot" *ngIf="n.unread"></div>
+            <div class="notif-content">
+              <strong>{{ n.title }}</strong>
+              <p>{{ n.text }}</p>
+              <small>{{ n.time }}</small>
+            </div>
+          </div>
+          <div *ngIf="notifications.length === 0" class="notif-empty">No notifications</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="user-profile-card">
+      <div class="user-avatar">
+        <i class="bi bi-person-fill"></i>
+      </div>
+      <div class="user-details">
+        <span class="u-name">{{ userName }}</span>
+        <span class="u-id">{{ userUsername }}</span>
+      </div>
+    </div>
+
+    <button class="header-logout-btn" (click)="logout()" title="Logout">
+      <i class="bi bi-power"></i>
+    </button>
+  </div>
+</header>

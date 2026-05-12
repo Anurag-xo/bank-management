@@ -1,0 +1,291 @@
+<app-sidebar [items]="sidebarItems" [activeItem]="activeSection"
+  (itemClick)="switchSection($event)">
+</app-sidebar>
+<app-dashboard-header></app-dashboard-header>
+<app-toast></app-toast>
+
+<main class="main-area">
+  <div *ngIf="activeSection === 'dashboard'" class="fade-in">
+    <h1 class="page-title">Welcome, {{ currentUser.name }}</h1>
+    <div class="offer-banner">
+      <div class="offer-banner-icon"><i class="bi bi-gift-fill"></i></div>
+      <div><h4>Special Offer!</h4><p>Apply for a Home Loan now and get 0.5% lower interest rates. Limited time offer.</p></div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="stat-card stat-indigo">
+        <div class="stat-icon-bg"><i class="bi bi-wallet2"></i></div>
+        <h2>₹{{ currentUser.balance || 0 }}</h2>
+        <p>Balance</p>
+      </div>
+      <div class="stat-card stat-emerald">
+        <div class="stat-icon-bg"><i class="bi bi-arrow-down-circle"></i></div>
+        <h2>₹{{ totalDeposits }}</h2>
+        <p>Deposits</p>
+      </div>
+      <div class="stat-card stat-amber">
+        <div class="stat-icon-bg"><i class="bi bi-arrow-up-circle"></i></div>
+        <h2>₹{{ totalWithdrawals }}</h2>
+        <p>Withdrawals</p>
+      </div>
+      <div class="stat-card stat-violet">
+        <div class="stat-icon-bg"><i class="bi bi-star"></i></div>
+        <h2>{{ currentUser.cibil || 'N/A' }}</h2>
+        <p>CIBIL Score</p>
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="content-card">
+        <h3><i class="bi bi-person-vcard text-indigo"></i> Account Details</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><span class="detail-label">Account No.</span><span class="detail-value mono">{{ accountNumber }}</span></div>
+          <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value">{{ currentUser.name }}</span></div>
+          <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ currentUser.email }}</span></div>
+          <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">{{ currentUser.phone }}</span></div>
+        </div>
+      </div>
+      <div class="content-card">
+        <h3><i class="bi bi-lightning-charge-fill text-warning"></i> Quick Actions</h3>
+        <div class="quick-actions-grid">
+          <button class="quick-action-btn qa-primary" (click)="switchSection('transactions')"><i class="bi bi-arrow-left-right"></i> <div><strong>New Transaction</strong><small>Deposit or withdraw</small></div></button>
+          <button class="quick-action-btn qa-warning" (click)="switchSection('apply-loan')"><i class="bi bi-cash-stack"></i> <div><strong>Apply for Loan</strong><small>Quick loan application</small></div></button>
+          <button class="quick-action-btn qa-light" (click)="switchSection('tx-history')"><i class="bi bi-clock-history"></i> <div><strong>View History</strong><small>All your transactions</small></div></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'transactions'" class="fade-in centered-section">
+    <div class="content-card loan-form center-form">
+      <h3><i class="bi bi-arrow-left-right text-indigo"></i> Transaction Form</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Amount (₹)</label><input type="number" [(ngModel)]="txAmount" placeholder="0"></div>
+        <div class="form-group"><label>Type</label>
+          <select [(ngModel)]="txType"><option>Deposit</option><option>Withdrawal</option><option>Transfer</option></select>
+        </div>
+      </div>
+      <div class="form-row" *ngIf="txType === 'Transfer'">
+        <div class="form-group"><label>To Account</label><input [(ngModel)]="txToAcc" placeholder="Target Acc No."></div>
+        <div class="form-group"><label>IFSC</label><input [(ngModel)]="txIfsc" placeholder="IFSC Code"></div>
+      </div>
+      <div class="info-banner" style="margin-bottom:20px;">
+        <i class="bi bi-wallet2"></i>
+        <div><h4>Current Balance</h4><p>₹{{ currentUser.balance || 0 }}</p></div>
+      </div>
+      <button class="btn-primary-full" (click)="processTransaction()"><i class="bi bi-check-circle"></i> Process</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'tx-history'" class="fade-in">
+    <div class="section-top">
+      <h1 class="page-title">Transaction History & Statements</h1>
+      <div class="section-actions">
+        <button class="btn-outline" (click)="downloadStatement('PDF')"><i class="bi bi-file-pdf"></i> PDF</button>
+        <button class="btn-outline" (click)="downloadStatement('Excel')"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+      </div>
+    </div>
+    <div class="content-card mb-24 filter-card">
+      <div class="filter-grid">
+        <div class="filter-item">
+          <label><i class="bi bi-calendar-event"></i> From Date</label>
+          <input type="date" [(ngModel)]="stmtStartDate" (change)="applyStatementFilters()">
+        </div>
+        <div class="filter-item">
+          <label><i class="bi bi-calendar-check"></i> To Date</label>
+          <input type="date" [(ngModel)]="stmtEndDate" (change)="applyStatementFilters()">
+        </div>
+        <div class="filter-item">
+          <label><i class="bi bi-funnel"></i> Transaction Type</label>
+          <select [(ngModel)]="stmtType" (change)="applyStatementFilters()">
+            <option>All</option>
+            <option>Deposit</option>
+            <option>Withdrawal</option>
+            <option>Transfer</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Reference</th><th>Transaction Details</th><th>Amount</th><th>Status</th><th>Date & Time</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let tx of (stmtStartDate || stmtEndDate || stmtType !== 'All' ? filteredTransactions : myTransactions).slice().reverse()">
+            <td class="mono">#TX-{{ tx.id }}</td>
+            <td>
+              <div class="tx-details">
+                <i [class]="tx.type==='Deposit' ? 'bi bi-plus-circle text-success' : tx.type==='Withdrawal' ? 'bi bi-dash-circle text-danger' : 'bi bi-arrow-left-right text-info'"></i>
+                <span>{{ tx.type }} {{ tx.toAcc ? 'to ' + tx.toAcc : '' }}</span>
+              </div>
+            </td>
+            <td class="fw-700" [class.text-success]="tx.type==='Deposit'" [class.text-danger]="tx.type==='Withdrawal' || tx.type==='Transfer'">
+              {{ tx.type==='Deposit' ? '+' : '-' }} ₹{{ tx.amount }}
+            </td>
+            <td><span class="badge badge-success">COMPLETED</span></td>
+            <td class="mono">{{ tx.date | date:'MMM d, y, h:mm a' }}</td>
+          </tr>
+          <tr *ngIf="myTransactions.length === 0"><td colspan="5" class="text-muted" style="text-align:center;padding:40px;">No transactions found for the selected period.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'apply-loan'" class="fade-in">
+    <h1 class="page-title">Loan Application & Calculator</h1>
+    <div class="card-row">
+      <div class="content-card loan-form">
+        <h3><i class="bi bi-cash-stack text-indigo"></i> Loan Application</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Amount (₹)</label><input type="number" [(ngModel)]="loanAmount" placeholder="0"></div>
+          <div class="form-group"><label>Loan Type</label>
+            <select [(ngModel)]="loanType"><option>Home</option><option>Personal</option><option>Car</option><option>Education</option></select>
+          </div>
+        </div>
+        <button class="btn-primary-full" (click)="applyLoan()"><i class="bi bi-send"></i> Submit Application</button>
+      </div>
+      <div class="content-card">
+        <h3><i class="bi bi-calculator text-indigo"></i> EMI Calculator</h3>
+        <div class="form-group"><label>Principal Amount: ₹{{ emiAmount }}</label><input type="range" [(ngModel)]="emiAmount" min="10000" max="1000000" step="10000" (input)="calculateEMI()"></div>
+        <div class="form-group"><label>Interest Rate: {{ emiRate }}%</label><input type="range" [(ngModel)]="emiRate" min="5" max="20" step="0.5" (input)="calculateEMI()"></div>
+        <div class="form-group"><label>Tenure: {{ emiTenure }} months</label><input type="range" [(ngModel)]="emiTenure" min="6" max="60" step="6" (input)="calculateEMI()"></div>
+        <div class="emi-result-box" *ngIf="emiResult > 0">
+          <p>Estimated Monthly EMI</p>
+          <h2>₹{{ emiResult }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'my-loans'" class="fade-in">
+    <h1 class="page-title">My Loans</h1>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Loan ID</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let l of myLoans">
+            <td class="mono">{{ l.id }}</td>
+            <td class="fw-600">₹{{ l.amount }}</td>
+            <td>{{ l.type || 'N/A' }}</td>
+            <td><span class="badge" [class.badge-success]="l.status==='approved'" [class.badge-danger]="l.status==='rejected'" [class.badge-warning]="l.status==='pending'">{{ l.status | uppercase }}</span></td>
+          </tr>
+          <tr *ngIf="myLoans.length === 0"><td colspan="4" class="text-muted" style="text-align:center;padding:40px;">No loans applied yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'update-profile'" class="fade-in centered-section">
+    <div class="content-card loan-form center-form">
+      <h3><i class="bi bi-pencil-square text-indigo"></i> Edit Your Information</h3>
+      <div class="form-group"><label>Full Name</label><input [(ngModel)]="upName"></div>
+      <div class="form-group"><label>Email</label><input type="email" [(ngModel)]="upEmail"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input [(ngModel)]="upPhone"></div>
+        <div class="form-group"><label>Address</label><input [(ngModel)]="upAddress"></div>
+      </div>
+      <div class="info-banner" style="margin-bottom:20px;">
+        <i class="bi bi-info-circle"></i>
+        <div><h4>Note</h4><p>Profile changes require employee approval before taking effect.</p></div>
+      </div>
+      
+      <div class="kyc-section mb-24">
+        <h4><i class="bi bi-shield-lock-fill"></i> KYC Verification</h4>
+        <p class="text-muted small mb-16">Upload your ID proof (Aadhar/PAN/Passport) to verify your account.</p>
+        <div class="upload-box">
+          <i class="bi bi-cloud-arrow-up"></i>
+          <span>Drag & Drop or Click to Upload</span>
+          <input type="file" style="opacity:0; position:absolute; inset:0; cursor:pointer;">
+        </div>
+      </div>
+
+      <button class="btn-primary-full" (click)="submitProfileUpdate()"><i class="bi bi-send"></i> Submit Update Request</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'services'" class="fade-in">
+    <h1 class="page-title">Banking Services</h1>
+    <div class="services-cards">
+      <div class="service-apply-card">
+        <i class="bi bi-credit-card-2-front text-indigo"></i>
+        <h4>Debit Card</h4>
+        <p>Request a new debit card or replace an existing one.</p>
+        <button style="border-color:#6366f1; color:#6366f1;" (click)="requestService('Debit Card')">Request</button>
+      </div>
+      <div class="service-apply-card">
+        <i class="bi bi-phone text-success"></i>
+        <h4>Mobile Banking</h4>
+        <p>Activate mobile banking for on-the-go access.</p>
+        <button style="border-color:#059669; color:#059669;" (click)="requestService('Mobile Banking')">Activate</button>
+      </div>
+      <div class="service-apply-card">
+        <i class="bi bi-shield-check text-warning"></i>
+        <h4>Insurance</h4>
+        <p>Get covered with our comprehensive insurance plans.</p>
+        <button style="border-color:#d97706; color:#d97706;" (click)="requestService('Insurance')">Apply</button>
+      </div>
+    </div>
+    <div *ngIf="serviceRequests.length > 0" class="table-card" style="margin-top:24px;">
+      <table>
+        <thead><tr><th>ID</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let s of serviceRequests">
+            <td class="mono">{{ s.id }}</td>
+            <td class="fw-600">{{ s.serviceType }}</td>
+            <td class="mono">{{ s.date | date:'medium' }}</td>
+            <td><span class="badge badge-warning">{{ s.status | uppercase }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div *ngIf="activeSection === 'payees'" class="fade-in">
+    <h1 class="page-title">Manage Beneficiaries</h1>
+    <div class="card-row">
+      <div class="content-card loan-form">
+        <h3><i class="bi bi-person-plus text-indigo"></i> Add New Payee</h3>
+        <div class="form-group"><label>Payee Name</label><input [(ngModel)]="payeeName" placeholder="Full Name"></div>
+        <div class="form-group"><label>Account Number</label><input [(ngModel)]="payeeAcc" placeholder="Account Number"></div>
+        <div class="form-group"><label>IFSC Code (Optional)</label><input [(ngModel)]="payeeIfsc" placeholder="IFSC Code"></div>
+        <button class="btn-primary-full" (click)="addPayee()"><i class="bi bi-plus-lg"></i> Add & Verify Payee</button>
+      </div>
+      <div class="content-card">
+        <h3><i class="bi bi-people text-indigo"></i> My Beneficiaries</h3>
+        <div class="beneficiary-list">
+          <div class="beneficiary-item" *ngFor="let b of beneficiaries">
+            <div class="beneficiary-info"><strong>{{ b.name }}</strong><small>{{ b.accountNumber }}</small></div>
+            <span class="badge badge-success">Verified</span>
+          </div>
+          <div *ngIf="beneficiaries.length === 0" class="text-muted p-24 text-center">No beneficiaries added yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'cards'" class="fade-in">
+    <h1 class="page-title">Card Management Hub</h1>
+    <div class="card-row">
+      <div class="virtual-card-container">
+        <div class="virtual-card">
+          <div class="vcard-chip"></div>
+          <div class="vcard-number">4582 •••• •••• 1294</div>
+          <div class="vcard-details">
+            <div class="vcard-holder"><span>Card Holder</span><strong>{{ currentUser.name | uppercase }}</strong></div>
+            <div class="vcard-expiry"><span>Expires</span><strong>12/28</strong></div>
+          </div>
+          <div class="vcard-logo">VISA</div>
+        </div>
+      </div>
+      <div class="content-card" style="flex:1;">
+        <h3><i class="bi bi-gear-fill text-indigo"></i> Card Settings</h3>
+        <div class="setting-item">
+          <div><strong>Daily Limit</strong><small>Maximum transaction amount per day</small></div>
+          <input type="number" value="50000" class="sm-input">
+        </div>
+        <div class="setting-item">
+          <div><strong>Virtual Card</strong><small>View full card details and CVV</small></div>
+          <button class="btn-sm btn-outline">View Info</button>
+        </div>
+        <hr class="divider">
+        <button class="btn-danger-full" (click)="blockCard(1)"><i class="bi bi-shield-lock"></i> Block Card</button>
+      </div>
+    </div>
+  </div>
+</main>

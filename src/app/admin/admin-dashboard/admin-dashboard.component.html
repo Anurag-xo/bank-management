@@ -1,0 +1,192 @@
+<app-sidebar [items]="sidebarItems" [activeItem]="activeSection"
+  (itemClick)="switchSection($event)">
+</app-sidebar>
+<app-dashboard-header></app-dashboard-header>
+<app-toast></app-toast>
+
+<main class="main-area">
+  <div *ngIf="activeSection === 'dashboard'" class="fade-in">
+    <h1 class="page-title">Manager Overview</h1>
+    <div class="stats-grid">
+      <div class="stat-card stat-indigo" (click)="switchSection('customers')">
+        <div class="stat-icon-bg"><i class="bi bi-people"></i></div>
+        <h2>{{ customersCount }}</h2>
+        <p>Total Customers</p>
+      </div>
+      <div class="stat-card stat-violet" (click)="switchSection('employees')">
+        <div class="stat-icon-bg"><i class="bi bi-person-badge"></i></div>
+        <h2>{{ employeesCount }}</h2>
+        <p>Total Employees</p>
+      </div>
+      <div class="stat-card stat-amber" (click)="switchSection('loans')">
+        <div class="stat-icon-bg"><i class="bi bi-clock-history"></i></div>
+        <h2>{{ pendingLoansCount }}</h2>
+        <p>Pending Loans</p>
+      </div>
+    </div>
+    <div class="info-banner">
+      <i class="bi bi-shield-lock-fill"></i>
+      <div>
+        <h4>Manager Mode Active</h4>
+        <p>You have full system privileges. Any changes made here are permanent.</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'employees' || activeSection === 'customers'" class="fade-in">
+    <div class="section-top">
+      <h1 class="page-title">{{ filterRole === 'employee' ? 'Manage Employees' : 'Manage Customers' }}</h1>
+      <div class="section-actions">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" placeholder="Search users...">
+        </div>
+        <button class="btn-accent" (click)="toggleAddForm()">
+          <i class="bi bi-person-plus-fill"></i> {{ showAddForm ? 'Cancel' : 'Add ' + (filterRole === 'employee' ? 'Employee' : 'Customer') }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="showAddForm" class="add-form-card fade-in">
+      <h3>Create New {{ filterRole === 'employee' ? 'Employee' : 'Customer' }}</h3>
+      <div class="form-grid">
+        <input type="text" [(ngModel)]="addName" placeholder="Full Name">
+        <input type="email" [(ngModel)]="addEmail" placeholder="Email">
+        <input type="password" [(ngModel)]="addPassword" placeholder="Password">
+        <input type="tel" [(ngModel)]="addPhone" placeholder="Phone">
+        <input type="text" [(ngModel)]="addAddress" placeholder="Address" class="full-width">
+      </div>
+      <button class="btn-success" (click)="addUser()"><i class="bi bi-check-lg"></i> Create</button>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Role</th><th>Full Name</th><th>Username</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filteredUsers">
+            <td class="mono">{{ u.id }}</td>
+            <td><span class="badge">{{ u.role | uppercase }}</span></td>
+            <td class="fw-600">{{ u.name }}</td>
+            <td class="mono">{{ u.username }}</td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-info" (click)="openViewUser(u.id)"><i class="bi bi-eye"></i></button>
+              <button class="btn-sm btn-danger" (click)="deleteUser(u.id)"><i class="bi bi-trash3"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'loans'" class="fade-in">
+    <h1 class="page-title">Loan Management</h1>
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr><th>Loan ID</th><th>Cust. ID</th><th>Amount</th><th>Applied By</th><th>Doc</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let l of loans">
+            <td class="mono">{{ l.id }}</td>
+            <td>{{ l.customerId }}</td>
+            <td class="fw-600">₹{{ l.amount }}</td>
+            <td>{{ l.appliedBy }}</td>
+            <td><span class="text-muted" *ngIf="!l.document || l.document === 'None'">No Doc</span><span *ngIf="l.document && l.document !== 'None'">{{ l.document }}</span></td>
+            <td>
+              <span class="badge" [class.badge-success]="l.status === 'approved'" [class.badge-danger]="l.status === 'rejected'" [class.badge-warning]="l.status === 'pending'">{{ l.status | uppercase }}</span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-sm btn-info" (click)="openViewLoan(l.id)"><i class="bi bi-eye"></i></button>
+              <button *ngIf="l.status !== 'approved'" class="btn-sm btn-success" (click)="updateLoanStatus(l.id, 'approved')"><i class="bi bi-check-lg"></i></button>
+              <button *ngIf="l.status !== 'rejected'" class="btn-sm btn-danger" (click)="updateLoanStatus(l.id, 'rejected')"><i class="bi bi-x-lg"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="activeSection === 'audit-logs'" class="fade-in">
+    <h1 class="page-title">System Audit Logs</h1>
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Log ID</th><th>Action</th><th>Performed By</th><th>Timestamp</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let log of auditLogs">
+            <td class="mono">{{ log.id }}</td>
+            <td><span class="badge badge-info">{{ log.action }}</span></td>
+            <td class="fw-600">{{ log.performedBy }}</td>
+            <td class="mono">{{ log.timestamp | date:'medium' }}</td>
+            <td>{{ log.details }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" *ngIf="showViewUserModal" (click)="showViewUserModal = false">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>User Details</h3>
+      <button class="modal-close" (click)="showViewUserModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="viewUser">
+      <div class="detail-grid">
+        <div *ngIf="viewUser.role === 'customer'" class="detail-item full-width">
+          <span class="detail-label">Account Number</span>
+          <span class="detail-value mono text-lg">{{ getAccountNumber(viewUser.id) }}</span>
+        </div>
+        <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value">{{ viewUser.name }}</span></div>
+        <div class="detail-item"><span class="detail-label">Username</span><span class="detail-value mono">{{ viewUser.username }}</span></div>
+        <div class="detail-item"><span class="detail-label">Role</span><span class="badge">{{ viewUser.role | uppercase }}</span></div>
+        <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ viewUser.email || 'N/A' }}</span></div>
+        <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">{{ viewUser.phone || 'N/A' }}</span></div>
+        <div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">{{ viewUser.address || 'N/A' }}</span></div>
+      </div>
+      <div *ngIf="viewUser.role === 'customer'" class="financial-strip">
+        <div><span>Balance</span><strong class="text-success">₹{{ viewUser.balance || 0 }}</strong></div>
+        <div><span>CIBIL</span><strong class="text-indigo">{{ viewUser.cibil || 'N/A' }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showViewLoanModal" (click)="showViewLoanModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Loan Tracking</h3>
+      <button class="modal-close" (click)="showViewLoanModal = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="viewLoan">
+      <p class="text-muted mb-16">Loan ID: {{ viewLoan.id }} (Cust: {{ viewLoan.customerId }})</p>
+      <div class="timeline-steps">
+        <div class="step completed"><i class="bi bi-check-circle-fill"></i> Application Submitted</div>
+        <div class="step" [class.completed]="viewLoan.status !== 'pending'"><i [class]="viewLoan.status !== 'pending' ? 'bi bi-check-circle-fill' : 'bi bi-circle'"></i> Document Verification</div>
+        <div class="step" [class.completed]="viewLoan.status === 'approved'" [class.rejected]="viewLoan.status === 'rejected'">
+          <i [class]="viewLoan.status === 'approved' ? 'bi bi-check-circle-fill' : (viewLoan.status === 'rejected' ? 'bi bi-x-circle-fill' : 'bi bi-circle')"></i> Final Decision ({{ viewLoan.status | uppercase }})
+        </div>
+      </div>
+      <div class="loan-details-grid">
+        <div class="loan-detail-box"><span>Principal</span><strong>₹{{ viewLoan.amount }}</strong><small>{{ getLoanInterest(viewLoan) }}% p.a. for {{ getLoanTimeline(viewLoan) }} mo.</small></div>
+        <div class="loan-detail-box"><span>Status</span><strong [class.text-success]="viewLoan.status==='approved'" [class.text-danger]="viewLoan.status==='rejected'" [class.text-warning]="viewLoan.status==='pending'">{{ viewLoan.status | uppercase }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showConfirmModal" (click)="showConfirmModal = false">
+  <div class="modal-card modal-sm" (click)="$event.stopPropagation()">
+    <div class="confirm-modal-body">
+      <div class="confirm-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <h3>Confirm Action</h3>
+      <p>{{ confirmMessage }}</p>
+      <div class="confirm-actions">
+        <button class="btn-outline" (click)="showConfirmModal = false">Cancel</button>
+        <button class="btn-danger" (click)="executeConfirm()">Yes, Proceed</button>
+      </div>
+    </div>
+  </div>
+</div>
