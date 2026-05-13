@@ -59,8 +59,4 @@ export class SidebarComponent {
       this.notifications.forEach(n => n.unread = false);
     }
   }
-
-  logout(): void {
-    this.auth.logout();
-  }
 }

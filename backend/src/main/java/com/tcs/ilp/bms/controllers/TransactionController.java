@@ -32,18 +32,42 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<?> createTransaction(@RequestBody Transaction t) {
-        User customer = userRepository.findById(t.getCustomerId());
+        User customer = null;
+
+        if (t.getCustomerUsername() != null && !t.getCustomerUsername().isEmpty()) {
+            customer = userRepository.findByUsername(t.getCustomerUsername());
+            if (customer == null) {
+                return ResponseEntity.badRequest().body("Customer not found with username: " + t.getCustomerUsername());
+            }
+            t.setCustomerId(customer.getId());
+        } else if (t.getCustomerId() != null) {
+            customer = userRepository.findById(t.getCustomerId());
+        }
+
         if (customer == null) {
             return ResponseEntity.badRequest().body("Customer not found");
         }
 
-        if ("Transfer".equalsIgnoreCase(t.getType())) {
-            if (t.getToAcc() == null || t.getToAcc().isEmpty()) {
-                return ResponseEntity.badRequest().body("Receiver account number is required");
+        if (t.getPin() != null && !t.getPin().isEmpty()) {
+            if (customer.getPin() == null || customer.getPin().isEmpty()) {
+                return ResponseEntity.badRequest().body("Please set up a transaction PIN first from your profile settings");
             }
-            User receiver = userRepository.findByAccountNumber(t.getToAcc());
+            if (!t.getPin().equals(customer.getPin())) {
+                return ResponseEntity.status(401).body("Invalid PIN");
+            }
+        }
+
+        if ("Transfer".equalsIgnoreCase(t.getType())) {
+            User receiver = null;
+
+            if (t.getRecipientUsername() != null && !t.getRecipientUsername().isEmpty()) {
+                receiver = userRepository.findByUsername(t.getRecipientUsername());
+            } else if (t.getToAcc() != null && !t.getToAcc().isEmpty()) {
+                receiver = userRepository.findByAccountNumber(t.getToAcc());
+            }
+
             if (receiver == null) {
-                return ResponseEntity.badRequest().body("Receiver account not found");
+                return ResponseEntity.badRequest().body("Recipient not found");
             }
             if (receiver.getId().equals(customer.getId())) {
                 return ResponseEntity.badRequest().body("Cannot transfer to yourself");
@@ -52,18 +76,16 @@ public class TransactionController {
                 return ResponseEntity.badRequest().body("Insufficient balance");
             }
 
-            // Perform transfer
+            t.setToAcc(String.valueOf(1000000000L + receiver.getId()));
+
             userRepository.updateBalance(customer.getId(), customer.getBalance() - t.getAmount());
             userRepository.updateBalance(receiver.getId(), receiver.getBalance() + t.getAmount());
-            
-            // Log receiver side transaction as well? For now, we just log the sender's.
         } else if ("Withdrawal".equalsIgnoreCase(t.getType())) {
             if (customer.getBalance() < t.getAmount()) {
                 return ResponseEntity.badRequest().body("Insufficient balance");
             }
             userRepository.updateBalance(customer.getId(), customer.getBalance() - t.getAmount());
         } else {
-            // Deposit or Online
             userRepository.updateBalance(customer.getId(), customer.getBalance() + t.getAmount());
         }
 

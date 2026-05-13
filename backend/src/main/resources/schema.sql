@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     address VARCHAR(255),
     balance DOUBLE DEFAULT 0.0,
     cibil INT DEFAULT 0,
-    status VARCHAR(50) DEFAULT 'active'
+    status VARCHAR(50) DEFAULT 'active',
+    pin VARCHAR(4)
 );
 
 CREATE TABLE IF NOT EXISTS transactions (

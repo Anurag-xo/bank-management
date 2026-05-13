@@ -60,4 +60,16 @@ export class ApiService {
   submitServiceRequest(request: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/service-requests`, request, { responseType: 'text' });
   }
+
+  searchUser(username: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/users/search?username=${username}`);
+  }
+
+  setPin(username: string, pin: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/set-pin`, { username, pin }, { responseType: 'text' });
+  }
+
+  verifyPin(username: string, pin: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/verify-pin`, { username, pin }, { responseType: 'text' });
+  }
 }

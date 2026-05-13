@@ -19,4 +19,5 @@ public class User {
     private Double balance;
     private Integer cibil;
     private String status;
+    private String pin;
 }

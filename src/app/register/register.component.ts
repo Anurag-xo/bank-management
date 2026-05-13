@@ -46,9 +46,6 @@ export class RegisterComponent {
       next: (savedUser) => {
         this.generatedUsername = savedUser.username;
         this.successMessage = 'Success';
-        setTimeout(() => {
-          if (this.successMessage) this.router.navigate(['/login']);
-        }, 8000);
       },
       error: () => {
         this.errorVisible = true;

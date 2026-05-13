@@ -10,6 +10,7 @@ export interface User {
   balance?: number;
   cibil?: number;
   status?: string;
+  pin?: string;
 }
 
 export interface Loan {

@@ -14,12 +14,9 @@ export class AuthService {
     return this.http.post<User>(`${this.apiUrl}/login`, { username, password }).pipe(
       tap(user => {
         if (user) {
-          const minimalUser = {
-            username: user.username,
-            role: user.role,
-            name: user.name
-          };
-          localStorage.setItem('currentUser', JSON.stringify(minimalUser));
+          const storedUser = { ...user } as any;
+          delete storedUser.password;
+          localStorage.setItem('currentUser', JSON.stringify(storedUser));
         }
       }),
       catchError(() => of(null))

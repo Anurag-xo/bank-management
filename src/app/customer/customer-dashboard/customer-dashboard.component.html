@@ -57,21 +57,66 @@
   <div *ngIf="activeSection === 'transactions'" class="fade-in centered-section">
     <div class="content-card loan-form center-form">
       <h3><i class="bi bi-arrow-left-right text-indigo"></i> Transaction Form</h3>
-      <div class="form-row">
-        <div class="form-group"><label>Amount (₹)</label><input type="number" [(ngModel)]="txAmount" placeholder="0"></div>
-        <div class="form-group"><label>Type</label>
-          <select [(ngModel)]="txType"><option>Deposit</option><option>Withdrawal</option><option>Transfer</option></select>
+
+      <div class="form-group">
+        <label>Transaction Type</label>
+        <select [(ngModel)]="txType" disabled style="background-color: #f8fafc; cursor: not-allowed; color: #64748b;">
+          <option>Transfer</option>
+        </select>
+      </div>
+
+      <div class="transfer-section">
+        <div class="form-group">
+          <label><i class="bi bi-search"></i> Search Recipient by Username</label>
+          <div class="search-input-row">
+            <input [(ngModel)]="recipientSearch" placeholder="e.g. CUST778593" (keydown.enter)="searchRecipient()">
+            <button class="btn-search-inline" (click)="searchRecipient()" [disabled]="recipientSearching">
+              <i [class]="recipientSearching ? 'bi bi-arrow-repeat spin' : 'bi bi-search'"></i>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="recipientNotFound" class="recipient-not-found">
+          <i class="bi bi-person-x"></i>
+          <span>No customer found with that username. Please check and try again.</span>
+        </div>
+
+        <div *ngIf="recipientUser" class="recipient-card">
+          <div class="recipient-avatar"><i class="bi bi-person-circle"></i></div>
+          <div class="recipient-info">
+            <strong>{{ recipientUser.name }}</strong>
+            <span class="mono">{{ recipientUser.username }}</span>
+            <small>Account: {{ getAccountNumber(recipientUser.id) }}</small>
+            <small *ngIf="recipientUser.address" style="display: block; margin-top: 4px;"><i class="bi bi-geo-alt-fill"></i> {{ recipientUser.address }}</small>
+          </div>
+          <div class="recipient-verified">
+            <i class="bi bi-patch-check-fill"></i> Verified
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="recipientUser">
+          <label>Amount (₹)</label>
+          <input type="number" [(ngModel)]="txAmount" placeholder="Enter amount to transfer">
         </div>
       </div>
-      <div class="form-row" *ngIf="txType === 'Transfer'">
-        <div class="form-group"><label>To Account</label><input [(ngModel)]="txToAcc" placeholder="Target Acc No."></div>
-        <div class="form-group"><label>IFSC</label><input [(ngModel)]="txIfsc" placeholder="IFSC Code"></div>
-      </div>
+
       <div class="info-banner" style="margin-bottom:20px;">
         <i class="bi bi-wallet2"></i>
         <div><h4>Current Balance</h4><p>₹{{ currentUser.balance || 0 }}</p></div>
       </div>
-      <button class="btn-primary-full" (click)="processTransaction()"><i class="bi bi-check-circle"></i> Process</button>
+
+      <div *ngIf="!currentUser.pin" class="pin-warning-banner">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          <strong>PIN Required</strong>
+          <p>You need to set up a 4-digit transaction PIN before making transactions. Go to <a (click)="switchSection('update-profile')" class="link-inline">Update Profile</a> to create one.</p>
+        </div>
+      </div>
+
+      <button class="btn-primary-full" (click)="initiateTransaction()"
+              [disabled]="!txAmount || txAmount <= 0 || (txType === 'Transfer' && !recipientUser) || !currentUser.pin">
+        <i class="bi bi-shield-lock"></i> {{ txType === 'Transfer' ? 'Send Money' : 'Process Transaction' }}
+      </button>
     </div>
   </div>
 
@@ -185,7 +230,29 @@
         <i class="bi bi-info-circle"></i>
         <div><h4>Note</h4><p>Profile changes require employee approval before taking effect.</p></div>
       </div>
-      
+
+      <div class="pin-setup-section">
+        <h4><i class="bi bi-key-fill"></i> Transaction PIN</h4>
+        <p class="text-muted small mb-16">{{ currentUser.pin ? 'Update your 4-digit transaction PIN.' : 'Create a 4-digit PIN to authorize all your transactions.' }}</p>
+        <div *ngIf="!currentUser.pin" class="pin-setup-alert">
+          <i class="bi bi-exclamation-diamond-fill"></i>
+          <span>You have not set a PIN yet. A PIN is required for all transactions.</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ currentUser.pin ? 'New PIN' : 'Create PIN' }}</label>
+            <input type="password" [(ngModel)]="newPin" maxlength="4" placeholder="••••" class="pin-field">
+          </div>
+          <div class="form-group">
+            <label>Confirm PIN</label>
+            <input type="password" [(ngModel)]="confirmPin" maxlength="4" placeholder="••••" class="pin-field">
+          </div>
+        </div>
+        <button class="btn-accent pin-save-btn" (click)="savePin()" [disabled]="!newPin || newPin.length !== 4 || newPin !== confirmPin">
+          <i class="bi bi-check-lg"></i> {{ currentUser.pin ? 'Update PIN' : 'Set PIN' }}
+        </button>
+      </div>
+
       <div class="kyc-section mb-24">
         <h4><i class="bi bi-shield-lock-fill"></i> KYC Verification</h4>
         <p class="text-muted small mb-16">Upload your ID proof (Aadhar/PAN/Passport) to verify your account.</p>
@@ -236,6 +303,7 @@
       </table>
     </div>
   </div>
+
   <div *ngIf="activeSection === 'payees'" class="fade-in">
     <h1 class="page-title">Manage Beneficiaries</h1>
     <div class="card-row">
@@ -289,3 +357,27 @@
     </div>
   </div>
 </main>
+
+<div class="modal-overlay" *ngIf="showPinModal" (click)="showPinModal = false">
+  <div class="modal-card modal-sm pin-modal" (click)="$event.stopPropagation()">
+    <div class="pin-modal-body">
+      <div class="pin-lock-icon">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <h3>Enter Transaction PIN</h3>
+      <p class="text-muted">Enter your 4-digit PIN to authorize this {{ txType === 'Transfer' ? 'transfer of ₹' + txAmount + ' to ' + recipientUser?.name : txType + ' of ₹' + txAmount }}</p>
+      <div class="pin-input-wrapper">
+        <input type="password" [(ngModel)]="pinInput" maxlength="4" placeholder="••••" class="pin-main-input" (keydown.enter)="verifyAndProcess()">
+      </div>
+      <div class="pin-error-msg" *ngIf="pinError">
+        <i class="bi bi-exclamation-circle"></i> {{ pinError }}
+      </div>
+      <div class="pin-modal-actions">
+        <button class="btn-outline" (click)="showPinModal = false; pinInput = ''; pinError = ''">Cancel</button>
+        <button class="btn-success" (click)="verifyAndProcess()" [disabled]="pinInput.length !== 4">
+          <i class="bi bi-check-circle"></i> Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

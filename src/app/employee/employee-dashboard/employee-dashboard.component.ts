@@ -107,7 +107,7 @@ export class EmployeeDashboardComponent implements OnInit {
     if (!this.txSsn || !this.txName || !this.txAmount || this.txAmount <= 0) { this.toast.error('Fill all transaction fields!'); return; }
     
     const tx = {
-      customerId: parseInt(this.txSsn),
+      customerUsername: this.txSsn,
       amount: this.txAmount,
       type: this.txType,
       toAcc: this.txToAcc || undefined,

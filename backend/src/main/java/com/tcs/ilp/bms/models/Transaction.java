@@ -16,4 +16,7 @@ public class Transaction {
     private LocalDateTime date;
     private String toAcc;
     private String ifsc;
+    private String customerUsername;
+    private String recipientUsername;
+    private String pin;
 }

@@ -35,7 +35,7 @@ export class CustomerDashboardComponent implements OnInit {
   totalDeposits = 0;
   totalWithdrawals = 0;
 
-  txAmount: number | null = null; txType = 'Deposit'; txToAcc = ''; txIfsc = '';
+  txAmount: number | null = null; txType = 'Transfer'; txToAcc = ''; txIfsc = '';
   myTransactions: Transaction[] = [];
   myLoans: Loan[] = [];
   loanAmount: number | null = null; loanType = 'Home';
@@ -52,6 +52,19 @@ export class CustomerDashboardComponent implements OnInit {
   filteredTransactions: Transaction[] = [];
   payeeName = ''; payeeAcc = ''; payeeIfsc = '';
 
+  recipientSearch = '';
+  recipientUser: User | null = null;
+  recipientSearching = false;
+  recipientNotFound = false;
+
+  showPinModal = false;
+  pinInput = '';
+  pinError = '';
+  pendingTxAction: (() => void) | null = null;
+
+  newPin = '';
+  confirmPin = '';
+
   constructor(private auth: AuthService, private api: ApiService, private toast: ToastService) {}
 
   ngOnInit(): void {
@@ -66,7 +79,10 @@ export class CustomerDashboardComponent implements OnInit {
 
   loadAll(): void {
     this.auth.refreshCurrentUser().subscribe(user => {
-      if (user) this.currentUser = user;
+      if (user) {
+        this.currentUser = user;
+        this.accountNumber = String(1000000000 + this.currentUser.id);
+      }
     });
 
     this.api.getTransactionsByCustomer(this.currentUser.id).subscribe(txs => {
@@ -84,23 +100,88 @@ export class CustomerDashboardComponent implements OnInit {
     });
   }
 
-  switchSection(section: string): void { this.activeSection = section; this.loadAll(); }
+  switchSection(section: string): void {
+    this.activeSection = section;
+    this.recipientUser = null;
+    this.recipientSearch = '';
+    this.recipientNotFound = false;
+    this.loadAll();
+  }
 
-  processTransaction(): void {
+  searchRecipient(): void {
+    if (!this.recipientSearch.trim()) { this.toast.error('Enter a username to search'); return; }
+    this.recipientSearching = true;
+    this.recipientNotFound = false;
+    this.recipientUser = null;
+
+    this.api.searchUser(this.recipientSearch.trim()).subscribe({
+      next: (user) => {
+        this.recipientSearching = false;
+        if (user.username === this.currentUser.username) {
+          this.toast.error('Cannot transfer to yourself');
+          return;
+        }
+        if (user.role !== 'customer') {
+          this.toast.error('Recipient must be a customer account');
+          return;
+        }
+        this.recipientUser = user;
+      },
+      error: () => {
+        this.recipientSearching = false;
+        this.recipientNotFound = true;
+        this.toast.error('No customer found with that username');
+      }
+    });
+  }
+
+  initiateTransaction(): void {
     if (!this.txAmount || this.txAmount <= 0) { this.toast.error('Enter a valid amount!'); return; }
-    
-    const tx = {
+    if (this.txType === 'Transfer' && !this.recipientUser) { this.toast.error('Search and select a recipient first!'); return; }
+
+    if (!this.currentUser.pin) {
+      this.toast.error('Please set up a transaction PIN first from your Profile settings');
+      return;
+    }
+
+    this.pinInput = '';
+    this.pinError = '';
+    this.showPinModal = true;
+  }
+
+  verifyAndProcess(): void {
+    if (this.pinInput.length !== 4) { this.pinError = 'PIN must be 4 digits'; return; }
+
+    this.api.verifyPin(this.currentUser.username, this.pinInput).subscribe({
+      next: () => {
+        this.showPinModal = false;
+        this.executeTransaction();
+      },
+      error: () => {
+        this.pinError = 'Incorrect PIN. Please try again.';
+        this.pinInput = '';
+      }
+    });
+  }
+
+  private executeTransaction(): void {
+    const tx: any = {
       customerId: this.currentUser.id,
       amount: this.txAmount,
       type: this.txType,
-      toAcc: this.txToAcc || undefined,
-      ifsc: this.txIfsc || undefined
+      pin: this.pinInput
     };
+
+    if (this.txType === 'Transfer' && this.recipientUser) {
+      tx.recipientUsername = this.recipientUser.username;
+    }
 
     this.api.processTransaction(tx).subscribe({
       next: () => {
         this.toast.success(`${this.txType} of ₹${this.txAmount} successful!`);
         this.txAmount = null; this.txToAcc = ''; this.txIfsc = '';
+        this.recipientUser = null; this.recipientSearch = '';
+        this.pinInput = '';
         this.loadAll();
       },
       error: (err) => {
@@ -142,6 +223,28 @@ export class CustomerDashboardComponent implements OnInit {
     this.api.submitProfileUpdate(update).subscribe({
       next: () => this.toast.success('Profile update request submitted!'),
       error: () => this.toast.error('Failed to submit profile update')
+    });
+  }
+
+  savePin(): void {
+    if (!this.newPin || this.newPin.length !== 4 || !/^\d{4}$/.test(this.newPin)) {
+      this.toast.error('PIN must be exactly 4 digits');
+      return;
+    }
+    if (this.newPin !== this.confirmPin) {
+      this.toast.error('PINs do not match');
+      return;
+    }
+
+    this.api.setPin(this.currentUser.username, this.newPin).subscribe({
+      next: () => {
+        this.toast.success(this.currentUser.pin ? 'PIN updated successfully!' : 'Transaction PIN created successfully!');
+        this.currentUser.pin = this.newPin;
+        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        this.newPin = '';
+        this.confirmPin = '';
+      },
+      error: (err) => this.toast.error(err.error || 'Failed to set PIN')
     });
   }
 
@@ -190,5 +293,9 @@ export class CustomerDashboardComponent implements OnInit {
 
   blockCard(cardId: number): void {
     this.toast.warning('Card blocked successfully.');
+  }
+
+  getAccountNumber(id: number): string {
+    return String(1000000000 + id);
   }
 }

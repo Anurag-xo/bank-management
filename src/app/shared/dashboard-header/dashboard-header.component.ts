@@ -43,7 +43,17 @@ export class DashboardHeaderComponent implements OnInit {
     }
   }
 
-  logout(): void {
+  showLogoutConfirm = false;
+
+  logoutClick(): void {
+    this.showLogoutConfirm = true;
+  }
+
+  confirmLogout(): void {
     this.auth.logout();
+  }
+
+  cancelLogout(): void {
+    this.showLogoutConfirm = false;
   }
 }

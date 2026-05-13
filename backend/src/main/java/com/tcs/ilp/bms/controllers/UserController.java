@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -48,5 +49,42 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userRepository.findById(id);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchByUsername(@RequestParam String username) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            user.setPassword(null);
+            user.setPin(null);
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/set-pin")
+    public ResponseEntity<?> setPin(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String pin = body.get("pin");
+        if (pin == null || !pin.matches("\\d{4}")) {
+            return ResponseEntity.badRequest().body("PIN must be exactly 4 digits");
+        }
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        userRepository.updatePin(username, pin);
+        return ResponseEntity.ok("PIN set successfully");
+    }
+
+    @PostMapping("/verify-pin")
+    public ResponseEntity<?> verifyPin(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String pin = body.get("pin");
+        User user = userRepository.findByUsername(username);
+        if (user != null && pin != null && pin.equals(user.getPin())) {
+            return ResponseEntity.ok("PIN verified");
+        }
+        return ResponseEntity.status(401).body("Invalid PIN");
     }
 }

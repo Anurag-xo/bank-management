@@ -39,13 +39,17 @@ public class UserRepository {
 
     public int save(User user) {
         return jdbcTemplate.update(
-            "INSERT INTO users (role, username, password, name, email, phone, address, balance, cibil, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (role, username, password, name, email, phone, address, balance, cibil, status, pin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             user.getRole(), user.getUsername(), user.getPassword(), user.getName(), user.getEmail(), 
-            user.getPhone(), user.getAddress(), user.getBalance(), user.getCibil(), user.getStatus()
+            user.getPhone(), user.getAddress(), user.getBalance(), user.getCibil(), user.getStatus(), user.getPin()
         );
     }
 
     public int updateBalance(Long id, Double newBalance) {
         return jdbcTemplate.update("UPDATE users SET balance=? WHERE id=?", newBalance, id);
+    }
+
+    public int updatePin(String username, String pin) {
+        return jdbcTemplate.update("UPDATE users SET pin=? WHERE username=?", pin, username);
     }
 }
