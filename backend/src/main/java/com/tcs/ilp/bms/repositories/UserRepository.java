@@ -39,9 +39,9 @@ public class UserRepository {
 
     public int save(User user) {
         return jdbcTemplate.update(
-            "INSERT INTO users (role, username, password, name, email, phone, address, balance, cibil, status, pin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (role, username, password, name, email, phone, address, balance, cibil, status, pin, aadhar_card, pan_card) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             user.getRole(), user.getUsername(), user.getPassword(), user.getName(), user.getEmail(), 
-            user.getPhone(), user.getAddress(), user.getBalance(), user.getCibil(), user.getStatus(), user.getPin()
+            user.getPhone(), user.getAddress(), user.getBalance(), user.getCibil(), user.getStatus(), user.getPin(), user.getAadharCard(), user.getPanCard()
         );
     }
 
@@ -51,5 +51,17 @@ public class UserRepository {
 
     public int updatePin(String username, String pin) {
         return jdbcTemplate.update("UPDATE users SET pin=? WHERE username=?", pin, username);
+    }
+
+    public int deleteByUsername(String username) {
+        return jdbcTemplate.update("DELETE FROM users WHERE username=?", username);
+    }
+
+    public int updateStatus(String username, String status) {
+        return jdbcTemplate.update("UPDATE users SET status=? WHERE username=?", status, username);
+    }
+
+    public int updateProfile(String username, String name, String email, String phone, String address) {
+        return jdbcTemplate.update("UPDATE users SET name=?, email=?, phone=?, address=? WHERE username=?", name, email, phone, address, username);
     }
 }

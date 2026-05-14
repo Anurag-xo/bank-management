@@ -51,10 +51,15 @@ export class AdminDashboardComponent implements OnInit {
   confirmMessage = '';
   pendingAction: (() => void) | null = null;
   userTransactions: any[] = [];
+  currentUser: User | null = null;
 
   constructor(private auth: AuthService, private api: ApiService, private toast: ToastService) {}
 
   ngOnInit(): void {
+    this.currentUser = this.auth.getCurrentUser();
+    this.auth.refreshCurrentUser().subscribe(user => {
+      if (user) this.currentUser = user;
+    });
     this.loadAll();
   }
 
@@ -68,7 +73,7 @@ export class AdminDashboardComponent implements OnInit {
 
     this.api.getAllLoans().subscribe(loans => {
       this.loans = loans;
-      this.pendingLoansCount = this.loans.filter(l => l.status === 'pending').length;
+      this.pendingLoansCount = this.loans.filter(l => l.verificationStatus === 'PENDING_MANAGER').length;
     });
   }
 
@@ -113,8 +118,33 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  deleteUser(id: number): void {
-    this.toast.info('Delete is disabled in this demo');
+  deleteUser(username: string): void {
+    this.confirmMessage = `Are you sure you want to permanently delete user ${username}?`;
+    this.pendingAction = () => {
+      this.api.deleteUser(username).subscribe({
+        next: () => {
+          this.toast.success(`User ${username} deleted`);
+          this.loadAll();
+        },
+        error: () => this.toast.error('Failed to delete user')
+      });
+    };
+    this.showConfirmModal = true;
+  }
+
+  toggleHoldUser(username: string, isHold: boolean): void {
+    const actionStr = isHold ? 'hold' : 'unhold';
+    this.confirmMessage = `Are you sure you want to ${actionStr} user ${username}?`;
+    this.pendingAction = () => {
+      this.api.holdUser(username, isHold).subscribe({
+        next: () => {
+          this.toast.success(`User ${username} status updated`);
+          this.loadAll();
+        },
+        error: () => this.toast.error(`Failed to update user status`)
+      });
+    };
+    this.showConfirmModal = true;
   }
 
   executeConfirm(): void {
@@ -123,13 +153,16 @@ export class AdminDashboardComponent implements OnInit {
     this.pendingAction = null;
   }
 
-  openViewUser(id: number): void {
-    this.viewUser = this.users.find(u => u.id === id) || null;
-    if (this.viewUser) {
-      this.api.getTransactionsByCustomer(id).subscribe(txs => {
+  openViewUser(username: string): void {
+    this.viewUser = this.users.find(u => u.username === username) || null;
+    if (this.viewUser && this.viewUser.role === 'customer') {
+      this.api.getTransactionsByCustomer(username).subscribe(txs => {
         this.userTransactions = txs;
         this.showViewUserModal = true;
       });
+    } else if (this.viewUser) {
+      this.userTransactions = [];
+      this.showViewUserModal = true;
     }
   }
 
@@ -140,8 +173,10 @@ export class AdminDashboardComponent implements OnInit {
   updateLoanStatus(id: number, status: 'approved' | 'rejected'): void {
     const manager = this.auth.getCurrentUser()?.username || 'manager';
     this.api.updateLoanStatus(id, status, manager).subscribe(() => {
-      this.toast.success(`Loan ${status}`);
-      this.loadAll();
+      this.api.updateLoanVerificationStatus(id, status.toUpperCase(), manager).subscribe(() => {
+        this.toast.success(`Loan ${status}`);
+        this.loadAll();
+      });
     });
   }
 

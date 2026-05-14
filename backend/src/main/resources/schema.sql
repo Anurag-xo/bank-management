@@ -10,67 +10,76 @@ CREATE TABLE IF NOT EXISTS users (
     balance DOUBLE DEFAULT 0.0,
     cibil INT DEFAULT 0,
     status VARCHAR(50) DEFAULT 'active',
-    pin VARCHAR(4)
+    pin VARCHAR(4),
+    aadhar_card VARCHAR(20),
+    pan_card VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
+    recipient_username VARCHAR(100),
     amount DOUBLE NOT NULL,
     type VARCHAR(50) NOT NULL,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     to_acc VARCHAR(50),
     ifsc VARCHAR(50),
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (recipient_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS loans (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
+    loan_basis VARCHAR(50),
     type VARCHAR(100),
     amount DOUBLE NOT NULL,
     interest VARCHAR(10),
     timeline VARCHAR(10),
     document VARCHAR(255),
+    collateral_details VARCHAR(255),
+    emi_months INT,
+    emi_amount DOUBLE,
+    verification_status VARCHAR(50) DEFAULT 'PENDING_EMPLOYEE',
     status VARCHAR(50) DEFAULT 'pending',
     applied_by VARCHAR(100),
     reviewed_by VARCHAR(100),
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS profile_updates (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
     new_name VARCHAR(100),
     new_email VARCHAR(100),
     new_phone VARCHAR(20),
     new_address VARCHAR(255),
     status VARCHAR(50) DEFAULT 'pending',
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS service_requests (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
     service_type VARCHAR(100) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS beneficiaries (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
     account_number VARCHAR(50) NOT NULL,
     ifsc VARCHAR(50),
     status VARCHAR(50) DEFAULT 'verified',
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cards (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id BIGINT NOT NULL,
+    customer_username VARCHAR(100) NOT NULL,
     card_number VARCHAR(20) NOT NULL,
     card_holder VARCHAR(100) NOT NULL,
     expiry VARCHAR(10) NOT NULL,
@@ -78,7 +87,7 @@ CREATE TABLE IF NOT EXISTS cards (
     type VARCHAR(20) DEFAULT 'Debit',
     status VARCHAR(50) DEFAULT 'active',
     daily_limit DOUBLE DEFAULT 50000.0,
-    FOREIGN KEY (customer_id) REFERENCES users(id)
+    FOREIGN KEY (customer_username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS audit_logs (
@@ -91,12 +100,12 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 
 CREATE TABLE IF NOT EXISTS notifications (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
+    username VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
     type VARCHAR(50) DEFAULT 'info',
     is_read BOOLEAN DEFAULT FALSE,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Insert a default manager for testing

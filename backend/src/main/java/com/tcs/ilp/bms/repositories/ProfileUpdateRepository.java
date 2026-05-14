@@ -18,15 +18,15 @@ public class ProfileUpdateRepository {
         return jdbcTemplate.query("SELECT * FROM profile_updates", new BeanPropertyRowMapper<>(ProfileUpdate.class));
     }
 
-    public List<ProfileUpdate> findByCustomerId(Long customerId) {
-        return jdbcTemplate.query("SELECT * FROM profile_updates WHERE customer_id=?", 
-            new BeanPropertyRowMapper<>(ProfileUpdate.class), customerId);
+    public List<ProfileUpdate> findByCustomerUsername(String customerUsername) {
+        return jdbcTemplate.query("SELECT * FROM profile_updates WHERE customer_username=?", 
+            new BeanPropertyRowMapper<>(ProfileUpdate.class), customerUsername);
     }
 
     public int save(ProfileUpdate update) {
         return jdbcTemplate.update(
-            "INSERT INTO profile_updates (customer_id, new_name, new_email, new_phone, new_address, status) VALUES (?, ?, ?, ?, ?, ?)",
-            update.getCustomerId(), update.getNewName(), update.getNewEmail(), update.getNewPhone(), update.getNewAddress(), update.getStatus()
+            "INSERT INTO profile_updates (customer_username, new_name, new_email, new_phone, new_address, status) VALUES (?, ?, ?, ?, ?, ?)",
+            update.getCustomerUsername(), update.getNewName(), update.getNewEmail(), update.getNewPhone(), update.getNewAddress(), update.getStatus()
         );
     }
 

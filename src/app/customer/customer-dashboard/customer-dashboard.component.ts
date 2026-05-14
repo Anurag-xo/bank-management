@@ -39,6 +39,8 @@ export class CustomerDashboardComponent implements OnInit {
   myTransactions: Transaction[] = [];
   myLoans: Loan[] = [];
   loanAmount: number | null = null; loanType = 'Home';
+  loanBasis = 'CIBIL'; collateralDetails = ''; loanEmiMonths = 12;
+  uploadedFileName = '';
 
   upName = ''; upEmail = ''; upPhone = ''; upAddress = '';
 
@@ -69,6 +71,16 @@ export class CustomerDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.auth.getCurrentUser()!;
+    this.auth.refreshCurrentUser().subscribe(user => {
+      if (user) {
+        this.currentUser = user;
+        this.accountNumber = String(1000000000 + this.currentUser.id);
+        this.upName = this.currentUser.name;
+        this.upEmail = this.currentUser.email;
+        this.upPhone = this.currentUser.phone;
+        this.upAddress = this.currentUser.address;
+      }
+    });
     this.accountNumber = String(1000000000 + this.currentUser.id);
     this.upName = this.currentUser.name;
     this.upEmail = this.currentUser.email;
@@ -85,17 +97,17 @@ export class CustomerDashboardComponent implements OnInit {
       }
     });
 
-    this.api.getTransactionsByCustomer(this.currentUser.id).subscribe(txs => {
+    this.api.getTransactionsByCustomer(this.currentUser.username).subscribe(txs => {
       this.myTransactions = txs;
       this.totalDeposits = this.myTransactions.filter(t => t.type === 'Deposit').reduce((s, t) => s + t.amount, 0);
       this.totalWithdrawals = this.myTransactions.filter(t => t.type === 'Withdrawal' || t.type === 'Transfer').reduce((s, t) => s + t.amount, 0);
     });
 
-    this.api.getLoansByCustomer(this.currentUser.id).subscribe(loans => {
+    this.api.getLoansByCustomer(this.currentUser.username).subscribe(loans => {
       this.myLoans = loans;
     });
 
-    this.api.getServiceRequestsByCustomer(this.currentUser.id).subscribe(reqs => {
+    this.api.getServiceRequestsByCustomer(this.currentUser.username).subscribe(reqs => {
       this.serviceRequests = reqs;
     });
   }
@@ -166,7 +178,7 @@ export class CustomerDashboardComponent implements OnInit {
 
   private executeTransaction(): void {
     const tx: any = {
-      customerId: this.currentUser.id,
+      customerUsername: this.currentUser.username,
       amount: this.txAmount,
       type: this.txType,
       pin: this.pinInput
@@ -194,26 +206,40 @@ export class CustomerDashboardComponent implements OnInit {
     if (!this.loanAmount || this.loanAmount <= 0) { this.toast.error('Enter a valid amount!'); return; }
     
     const loan = {
-      customerId: this.currentUser.id,
+      customerUsername: this.currentUser.username,
       amount: this.loanAmount,
       type: this.loanType,
+      loanBasis: this.loanBasis,
+      collateralDetails: this.loanBasis === 'Collateral' ? this.collateralDetails : null,
+      emiMonths: this.loanBasis === 'Collateral' ? this.loanEmiMonths : null,
+      emiAmount: this.loanBasis === 'Collateral' ? (this.loanAmount / this.loanEmiMonths) * 1.1 : null,
+      verificationStatus: 'PENDING_EMPLOYEE',
       status: 'pending',
       appliedBy: this.currentUser.username
     };
 
     this.api.applyLoan(loan).subscribe({
       next: () => {
-        this.toast.success('Loan application submitted!');
+        this.toast.success('Loan application submitted for Employee verification!');
         this.loanAmount = null;
+        this.collateralDetails = '';
+        this.uploadedFileName = '';
         this.loadAll();
       },
       error: () => this.toast.error('Failed to apply for loan')
     });
   }
 
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.uploadedFileName = file.name;
+    }
+  }
+
   submitProfileUpdate(): void {
     const update = {
-      customerId: this.currentUser.id,
+      customerUsername: this.currentUser.username,
       newName: this.upName,
       newEmail: this.upEmail,
       newPhone: this.upPhone,
@@ -250,7 +276,7 @@ export class CustomerDashboardComponent implements OnInit {
 
   requestService(type: string): void {
     const request = {
-      customerId: this.currentUser.id,
+      customerUsername: this.currentUser.username,
       serviceType: type,
       status: 'pending'
     };

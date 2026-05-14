@@ -25,9 +25,9 @@ public class TransactionController {
         return transactionRepository.findAll();
     }
 
-    @GetMapping("/customer/{id}")
-    public List<Transaction> getTransactionsByCustomerId(@PathVariable Long id) {
-        return transactionRepository.findByCustomerId(id);
+    @GetMapping("/customer/{username}")
+    public List<Transaction> getTransactionsByCustomerUsername(@PathVariable String username) {
+        return transactionRepository.findByCustomerUsername(username);
     }
 
     @PostMapping
@@ -36,16 +36,14 @@ public class TransactionController {
 
         if (t.getCustomerUsername() != null && !t.getCustomerUsername().isEmpty()) {
             customer = userRepository.findByUsername(t.getCustomerUsername());
-            if (customer == null) {
-                return ResponseEntity.badRequest().body("Customer not found with username: " + t.getCustomerUsername());
-            }
-            t.setCustomerId(customer.getId());
-        } else if (t.getCustomerId() != null) {
-            customer = userRepository.findById(t.getCustomerId());
         }
 
         if (customer == null) {
-            return ResponseEntity.badRequest().body("Customer not found");
+            return ResponseEntity.badRequest().body("Customer not found with username: " + t.getCustomerUsername());
+        }
+
+        if ("HOLD".equalsIgnoreCase(customer.getStatus())) {
+            return ResponseEntity.status(403).body("Account is on HOLD. Transactions are not permitted.");
         }
 
         if (t.getPin() != null && !t.getPin().isEmpty()) {
@@ -59,7 +57,6 @@ public class TransactionController {
 
         if ("Transfer".equalsIgnoreCase(t.getType())) {
             User receiver = null;
-
             if (t.getRecipientUsername() != null && !t.getRecipientUsername().isEmpty()) {
                 receiver = userRepository.findByUsername(t.getRecipientUsername());
             } else if (t.getToAcc() != null && !t.getToAcc().isEmpty()) {
@@ -69,13 +66,14 @@ public class TransactionController {
             if (receiver == null) {
                 return ResponseEntity.badRequest().body("Recipient not found");
             }
-            if (receiver.getId().equals(customer.getId())) {
+            if (receiver.getUsername().equals(customer.getUsername())) {
                 return ResponseEntity.badRequest().body("Cannot transfer to yourself");
             }
             if (customer.getBalance() < t.getAmount()) {
                 return ResponseEntity.badRequest().body("Insufficient balance");
             }
 
+            t.setRecipientUsername(receiver.getUsername());
             t.setToAcc(String.valueOf(1000000000L + receiver.getId()));
 
             userRepository.updateBalance(customer.getId(), customer.getBalance() - t.getAmount());
@@ -85,7 +83,18 @@ public class TransactionController {
                 return ResponseEntity.badRequest().body("Insufficient balance");
             }
             userRepository.updateBalance(customer.getId(), customer.getBalance() - t.getAmount());
+        } else if ("Deposit".equalsIgnoreCase(t.getType())) {
+            if (t.getRecipientUsername() != null && !t.getRecipientUsername().isEmpty()) {
+                // Employee-to-Customer or system-to-customer deposit
+                User receiver = userRepository.findByUsername(t.getRecipientUsername());
+                if (receiver == null) return ResponseEntity.badRequest().body("Recipient customer not found");
+                userRepository.updateBalance(receiver.getId(), receiver.getBalance() + t.getAmount());
+            } else {
+                // Self deposit
+                userRepository.updateBalance(customer.getId(), customer.getBalance() + t.getAmount());
+            }
         } else {
+            // Default: add to customer (e.g. for simple deposit or other types)
             userRepository.updateBalance(customer.getId(), customer.getBalance() + t.getAmount());
         }
 

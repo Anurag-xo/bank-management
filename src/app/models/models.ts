@@ -11,16 +11,23 @@ export interface User {
   cibil?: number;
   status?: string;
   pin?: string;
+  aadharCard?: string;
+  panCard?: string;
 }
 
 export interface Loan {
   id: number;
-  customerId: number;
+  customerUsername: string;
+  loanBasis?: string;
   type?: string;
   amount: number;
   interest?: string;
   timeline?: string;
   document?: string;
+  collateralDetails?: string;
+  emiMonths?: number;
+  emiAmount?: number;
+  verificationStatus?: string;
   status: 'pending' | 'approved' | 'rejected' | 'pending_emp';
   appliedBy: string;
   reviewedBy?: string;
@@ -28,17 +35,19 @@ export interface Loan {
 
 export interface Transaction {
   id: number;
-  customerId: number;
+  customerUsername: string;
   amount: number;
   type: string;
   date: string;
   toAcc?: string;
   ifsc?: string;
+  recipientUsername?: string;
+  pin?: string;
 }
 
 export interface ProfileUpdate {
   id: number;
-  customerId: number;
+  customerUsername: string;
   newName: string;
   newEmail: string;
   newPhone: string;
@@ -48,7 +57,7 @@ export interface ProfileUpdate {
 
 export interface ServiceRequest {
   id: number;
-  customerId: number;
+  customerUsername: string;
   serviceType: string;
   status: 'pending' | 'approved' | 'rejected';
   date: string;

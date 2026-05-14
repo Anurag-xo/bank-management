@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Transaction {
     private Long id;
-    private Long customerId;
     private Double amount;
     private String type;
     private LocalDateTime date;

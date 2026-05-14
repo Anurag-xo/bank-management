@@ -25,19 +25,36 @@ public class LoanController {
         return loanRepository.findAll();
     }
 
-    @GetMapping("/customer/{id}")
-    public List<Loan> getLoansByCustomerId(@PathVariable Long id) {
-        return loanRepository.findByCustomerId(id);
+    @GetMapping("/customer/{username}")
+    public List<Loan> getLoansByCustomerUsername(@PathVariable String username) {
+        return loanRepository.findByCustomerUsername(username);
     }
 
     @PostMapping
     public ResponseEntity<?> applyLoan(@RequestBody Loan loan) {
+        User customer = userRepository.findByUsername(loan.getCustomerUsername());
+        if (customer != null && "HOLD".equalsIgnoreCase(customer.getStatus())) {
+            return ResponseEntity.status(403).body("Account is on HOLD. Loan applications are not permitted.");
+        }
+        
+        if (loan.getAppliedBy() != null) {
+            User applicant = userRepository.findByUsername(loan.getAppliedBy());
+            if (applicant != null && "HOLD".equalsIgnoreCase(applicant.getStatus())) {
+                return ResponseEntity.status(403).body("Your account is on HOLD. You cannot apply for loans.");
+            }
+        }
+
         loanRepository.save(loan);
         return ResponseEntity.ok("Loan application submitted");
     }
 
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateLoanStatus(@PathVariable Long id, @RequestParam String status, @RequestParam String reviewedBy) {
+        User reviewer = userRepository.findByUsername(reviewedBy);
+        if (reviewer != null && "HOLD".equalsIgnoreCase(reviewer.getStatus())) {
+            return ResponseEntity.status(403).body("Your account is on HOLD. You cannot perform this action.");
+        }
+
         List<Loan> allLoans = loanRepository.findAll();
         Loan loan = allLoans.stream().filter(l -> l.getId().equals(id)).findFirst().orElse(null);
         
@@ -46,14 +63,14 @@ public class LoanController {
         }
 
         if ("approved".equalsIgnoreCase(status) && !"approved".equalsIgnoreCase(loan.getStatus())) {
-            User customer = userRepository.findById(loan.getCustomerId());
+            User customer = userRepository.findByUsername(loan.getCustomerUsername());
             if (customer != null) {
                 userRepository.updateBalance(customer.getId(), customer.getBalance() + loan.getAmount());
             }
         }
         
         if ("rejected".equalsIgnoreCase(status) && "approved".equalsIgnoreCase(loan.getStatus())) {
-            User customer = userRepository.findById(loan.getCustomerId());
+            User customer = userRepository.findByUsername(loan.getCustomerUsername());
             if (customer != null) {
                 userRepository.updateBalance(customer.getId(), customer.getBalance() - loan.getAmount());
             }
@@ -61,5 +78,15 @@ public class LoanController {
 
         loanRepository.updateStatus(id, status, reviewedBy);
         return ResponseEntity.ok("Loan status updated to " + status);
+    }
+
+    @PutMapping("/{id}/verify")
+    public ResponseEntity<?> updateLoanVerificationStatus(@PathVariable Long id, @RequestParam String verificationStatus, @RequestParam String reviewedBy) {
+        User reviewer = userRepository.findByUsername(reviewedBy);
+        if (reviewer != null && "HOLD".equalsIgnoreCase(reviewer.getStatus())) {
+            return ResponseEntity.status(403).body("Your account is on HOLD. You cannot perform this action.");
+        }
+        loanRepository.updateVerificationStatus(id, verificationStatus, reviewedBy);
+        return ResponseEntity.ok("Loan verification status updated to " + verificationStatus);
     }
 }

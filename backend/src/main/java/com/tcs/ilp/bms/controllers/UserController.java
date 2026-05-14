@@ -87,4 +87,17 @@ public class UserController {
         }
         return ResponseEntity.status(401).body("Invalid PIN");
     }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<?> deleteUser(@PathVariable String username) {
+        userRepository.deleteByUsername(username);
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @PutMapping("/{username}/hold")
+    public ResponseEntity<?> holdUser(@PathVariable String username, @RequestParam boolean hold) {
+        String status = hold ? "HOLD" : "active";
+        userRepository.updateStatus(username, status);
+        return ResponseEntity.ok("User status updated to " + status);
+    }
 }

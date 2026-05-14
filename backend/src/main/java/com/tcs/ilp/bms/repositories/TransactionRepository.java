@@ -18,14 +18,14 @@ public class TransactionRepository {
         return jdbcTemplate.query("SELECT * FROM transactions", new BeanPropertyRowMapper<>(Transaction.class));
     }
 
-    public List<Transaction> findByCustomerId(Long customerId) {
-        return jdbcTemplate.query("SELECT * FROM transactions WHERE customer_id=?", new BeanPropertyRowMapper<>(Transaction.class), customerId);
+    public List<Transaction> findByCustomerUsername(String customerUsername) {
+        return jdbcTemplate.query("SELECT * FROM transactions WHERE customer_username=? OR recipient_username=?", new BeanPropertyRowMapper<>(Transaction.class), customerUsername, customerUsername);
     }
 
     public int save(Transaction t) {
         return jdbcTemplate.update(
-            "INSERT INTO transactions (customer_id, amount, type, date, to_acc, ifsc) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, ?)",
-            t.getCustomerId(), t.getAmount(), t.getType(), t.getToAcc(), t.getIfsc()
+            "INSERT INTO transactions (customer_username, recipient_username, amount, type, date, to_acc, ifsc) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)",
+            t.getCustomerUsername(), t.getRecipientUsername(), t.getAmount(), t.getType(), t.getToAcc(), t.getIfsc()
         );
     }
 }

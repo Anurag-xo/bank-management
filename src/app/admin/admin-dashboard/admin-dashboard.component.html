@@ -7,6 +7,14 @@
 <main class="main-area">
   <div *ngIf="activeSection === 'dashboard'" class="fade-in">
     <h1 class="page-title">Manager Overview</h1>
+
+    <div *ngIf="currentUser?.status === 'HOLD'" class="hold-alert-banner fade-in">
+      <div class="hold-alert-icon"><i class="bi bi-exclamation-octagon-fill"></i></div>
+      <div>
+        <h4>Account Restricted</h4>
+        <p>Your manager account is currently on <strong>HOLD</strong>. You can view data, but you cannot delete users, toggle hold status, or update loan requests.</p>
+      </div>
+    </div>
     <div class="stats-grid">
       <div class="stat-card stat-indigo" (click)="switchSection('customers')">
         <div class="stat-icon-bg"><i class="bi bi-people"></i></div>
@@ -41,7 +49,7 @@
           <i class="bi bi-search"></i>
           <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilter()" placeholder="Search users...">
         </div>
-        <button class="btn-accent" (click)="toggleAddForm()">
+        <button class="btn-accent" (click)="toggleAddForm()" [disabled]="currentUser?.status === 'HOLD'">
           <i class="bi bi-person-plus-fill"></i> {{ showAddForm ? 'Cancel' : 'Add ' + (filterRole === 'employee' ? 'Employee' : 'Customer') }}
         </button>
       </div>
@@ -71,8 +79,11 @@
             <td class="fw-600">{{ u.name }}</td>
             <td class="mono">{{ u.username }}</td>
             <td class="actions-cell">
-              <button class="btn-sm btn-info" (click)="openViewUser(u.id)"><i class="bi bi-eye"></i></button>
-              <button class="btn-sm btn-danger" (click)="deleteUser(u.id)"><i class="bi bi-trash3"></i></button>
+              <button class="btn-sm btn-info" (click)="openViewUser(u.username)"><i class="bi bi-eye"></i></button>
+              <button class="btn-sm" [class.btn-warning]="u.status !== 'HOLD'" [class.btn-success]="u.status === 'HOLD'" (click)="toggleHoldUser(u.username, u.status !== 'HOLD')" [disabled]="currentUser?.status === 'HOLD'">
+                <i class="bi" [class.bi-pause-circle]="u.status !== 'HOLD'" [class.bi-play-circle]="u.status === 'HOLD'"></i>
+              </button>
+              <button class="btn-sm btn-danger" (click)="deleteUser(u.username)" [disabled]="currentUser?.status === 'HOLD'"><i class="bi bi-trash3"></i></button>
             </td>
           </tr>
         </tbody>
@@ -90,7 +101,7 @@
         <tbody>
           <tr *ngFor="let l of loans">
             <td class="mono">{{ l.id }}</td>
-            <td>{{ l.customerId }}</td>
+            <td class="mono">{{ l.customerUsername }}</td>
             <td class="fw-600">₹{{ l.amount }}</td>
             <td>{{ l.appliedBy }}</td>
             <td><span class="text-muted" *ngIf="!l.document || l.document === 'None'">No Doc</span><span *ngIf="l.document && l.document !== 'None'">{{ l.document }}</span></td>
@@ -99,8 +110,8 @@
             </td>
             <td class="actions-cell">
               <button class="btn-sm btn-info" (click)="openViewLoan(l.id)"><i class="bi bi-eye"></i></button>
-              <button *ngIf="l.status !== 'approved'" class="btn-sm btn-success" (click)="updateLoanStatus(l.id, 'approved')"><i class="bi bi-check-lg"></i></button>
-              <button *ngIf="l.status !== 'rejected'" class="btn-sm btn-danger" (click)="updateLoanStatus(l.id, 'rejected')"><i class="bi bi-x-lg"></i></button>
+              <button *ngIf="l.status !== 'approved'" class="btn-sm btn-success" (click)="updateLoanStatus(l.id, 'approved')" [disabled]="currentUser?.status === 'HOLD'"><i class="bi bi-check-lg"></i></button>
+              <button *ngIf="l.status !== 'rejected'" class="btn-sm btn-danger" (click)="updateLoanStatus(l.id, 'rejected')" [disabled]="currentUser?.status === 'HOLD'"><i class="bi bi-x-lg"></i></button>
             </td>
           </tr>
         </tbody>
@@ -142,9 +153,12 @@
         <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value">{{ viewUser.name }}</span></div>
         <div class="detail-item"><span class="detail-label">Username</span><span class="detail-value mono">{{ viewUser.username }}</span></div>
         <div class="detail-item"><span class="detail-label">Role</span><span class="badge">{{ viewUser.role | uppercase }}</span></div>
+        <div class="detail-item"><span class="detail-label">Status</span><span class="badge" [class.badge-warning]="viewUser.status === 'HOLD'" [class.badge-success]="viewUser.status !== 'HOLD'">{{ viewUser.status | uppercase }}</span></div>
         <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ viewUser.email || 'N/A' }}</span></div>
         <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">{{ viewUser.phone || 'N/A' }}</span></div>
         <div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">{{ viewUser.address || 'N/A' }}</span></div>
+        <div class="detail-item" *ngIf="viewUser.role === 'customer'"><span class="detail-label">Aadhar</span><span class="detail-value">{{ viewUser.aadharCard || 'N/A' }}</span></div>
+        <div class="detail-item" *ngIf="viewUser.role === 'customer'"><span class="detail-label">PAN</span><span class="detail-value">{{ viewUser.panCard || 'N/A' }}</span></div>
       </div>
       <div *ngIf="viewUser.role === 'customer'" class="financial-strip">
         <div><span>Balance</span><strong class="text-success">₹{{ viewUser.balance || 0 }}</strong></div>
@@ -155,23 +169,42 @@
 </div>
 
 <div class="modal-overlay" *ngIf="showViewLoanModal" (click)="showViewLoanModal = false">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Loan Tracking</h3>
-      <button class="modal-close" (click)="showViewLoanModal = false"><i class="bi bi-x-lg"></i></button>
-    </div>
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h3>Loan Application Details</h3><button class="modal-close" (click)="showViewLoanModal = false"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body" *ngIf="viewLoan">
-      <p class="text-muted mb-16">Loan ID: {{ viewLoan.id }} (Cust: {{ viewLoan.customerId }})</p>
-      <div class="timeline-steps">
-        <div class="step completed"><i class="bi bi-check-circle-fill"></i> Application Submitted</div>
-        <div class="step" [class.completed]="viewLoan.status !== 'pending'"><i [class]="viewLoan.status !== 'pending' ? 'bi bi-check-circle-fill' : 'bi bi-circle'"></i> Document Verification</div>
-        <div class="step" [class.completed]="viewLoan.status === 'approved'" [class.rejected]="viewLoan.status === 'rejected'">
-          <i [class]="viewLoan.status === 'approved' ? 'bi bi-check-circle-fill' : (viewLoan.status === 'rejected' ? 'bi bi-x-circle-fill' : 'bi bi-circle')"></i> Final Decision ({{ viewLoan.status | uppercase }})
+      <div class="detail-grid">
+        <div class="detail-item"><span class="detail-label">Customer Username</span><span class="detail-value mono">{{ viewLoan.customerUsername }}</span></div>
+        <div class="detail-item"><span class="detail-label">Loan Type</span><span class="detail-value">{{ viewLoan.type }}</span></div>
+        <div class="detail-item"><span class="detail-label">Amount Requested</span><span class="detail-value fw-800 text-indigo">₹{{ viewLoan.amount }}</span></div>
+        <div class="detail-item"><span class="detail-label">Basis</span><span class="detail-value badge badge-info">{{ viewLoan.loanBasis }}</span></div>
+      </div>
+      
+      <div class="content-card mb-24" *ngIf="viewLoan.loanBasis === 'Collateral'">
+        <h4><i class="bi bi-shield-lock-fill text-indigo"></i> Collateral Documents</h4>
+        <div class="detail-grid mt-12">
+          <div class="detail-item full-width"><span class="detail-label">Description</span><span class="detail-value">{{ viewLoan.collateralDetails || 'N/A' }}</span></div>
+          <div class="detail-item"><span class="detail-label">EMI Months</span><span class="detail-value">{{ viewLoan.emiMonths }} Months</span></div>
+          <div class="detail-item"><span class="detail-label">Attached Document</span>
+            <div class="doc-link-box">
+              <i class="bi bi-file-earmark-pdf-fill"></i>
+              <span>{{ viewLoan.document || 'No document uploaded' }}</span>
+              <button *ngIf="viewLoan.document" class="btn-sm btn-info" title="View Document"><i class="bi bi-download"></i></button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="loan-details-grid">
-        <div class="loan-detail-box"><span>Principal</span><strong>₹{{ viewLoan.amount }}</strong><small>{{ getLoanInterest(viewLoan) }}% p.a. for {{ getLoanTimeline(viewLoan) }} mo.</small></div>
-        <div class="loan-detail-box"><span>Status</span><strong [class.text-success]="viewLoan.status==='approved'" [class.text-danger]="viewLoan.status==='rejected'" [class.text-warning]="viewLoan.status==='pending'">{{ viewLoan.status | uppercase }}</strong></div>
+
+      <div class="financial-strip">
+        <div><span>Current Status</span><strong [class.text-warning]="viewLoan.status === 'pending'" [class.text-success]="viewLoan.status === 'approved'">{{ viewLoan.status | uppercase }}</strong></div>
+        <div><span>Verification</span><strong class="text-info">{{ viewLoan.verificationStatus }}</strong></div>
+        <div><span>Applied By</span><strong class="text-muted">{{ viewLoan.appliedBy }}</strong></div>
+      </div>
+      
+      <div class="modal-actions mt-24" *ngIf="viewLoan.status === 'pending' && viewLoan.verificationStatus === 'PENDING_MANAGER' && currentUser?.status !== 'HOLD'">
+        <div style="display:flex; gap:12px;">
+          <button class="btn-primary-full" style="background:linear-gradient(135deg, #059669, #10b981);" (click)="updateLoanStatus(viewLoan.id, 'approved'); showViewLoanModal = false"><i class="bi bi-check-lg"></i> Approve Loan</button>
+          <button class="btn-primary-full" style="background:linear-gradient(135deg, #dc2626, #ef4444);" (click)="updateLoanStatus(viewLoan.id, 'rejected'); showViewLoanModal = false"><i class="bi bi-x-lg"></i> Reject Loan</button>
+        </div>
       </div>
     </div>
   </div>

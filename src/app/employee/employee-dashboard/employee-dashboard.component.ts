@@ -38,13 +38,17 @@ export class EmployeeDashboardComponent implements OnInit {
   searchQuery = '';
   filteredCustomers: User[] = [];
 
-  addName = ''; addPassword = ''; addEmail = ''; addPhone = ''; addAddress = '';
+  addName = ''; addPassword = ''; addEmail = ''; addPhone = ''; addAddress = ''; addAadhar = ''; addPan = '';
   viewUser: User | null = null;
   showViewUserModal = false;
+  viewLoan: Loan | null = null;
+  showViewLoanModal = false;
+  currentUser: User | null = null;
 
   txId = ''; txSsn = ''; txName = ''; txAmount: number | null = null; txType = 'Deposit'; txToAcc = ''; txIfsc = '';
 
-  loanCustId: number | null = null; loanAmount: number | null = null; loanType = 'Home'; loanInterest = '8.5'; loanTimeline = '12'; loanDocument = 'Aadhar';
+  loanCustUsername = ''; loanAmount: number | null = null; loanType = 'Home'; loanBasis = 'CIBIL'; collateralDetails = ''; loanEmiMonths = 12;
+  uploadedFileName = '';
 
   allTransactions: Transaction[] = [];
   loans: Loan[] = [];
@@ -52,7 +56,13 @@ export class EmployeeDashboardComponent implements OnInit {
 
   constructor(private auth: AuthService, private api: ApiService, private toast: ToastService) {}
 
-  ngOnInit(): void { this.loadAll(); }
+  ngOnInit(): void { 
+    this.currentUser = this.auth.getCurrentUser();
+    this.auth.refreshCurrentUser().subscribe(user => {
+      if (user) this.currentUser = user;
+    });
+    this.loadAll(); 
+  }
 
   loadAll(): void {
     this.api.getAllUsers().subscribe(users => {
@@ -68,11 +78,13 @@ export class EmployeeDashboardComponent implements OnInit {
 
     this.api.getAllLoans().subscribe(loans => {
       this.loans = loans;
-      this.pendingLoans = this.loans.filter(l => l.status === 'pending').length;
+      this.pendingLoans = this.loans.filter(l => l.verificationStatus === 'PENDING_EMPLOYEE').length;
     });
 
-    this.profileUpdates = JSON.parse(localStorage.getItem('profileUpdates') || '[]');
-    this.pendingProfileUpdates = this.profileUpdates.filter(p => p.status === 'pending').length;
+    this.api.getProfileUpdates().subscribe(updates => {
+      this.profileUpdates = updates;
+      this.pendingProfileUpdates = this.profileUpdates.filter(p => p.status === 'pending').length;
+    });
   }
 
   switchSection(section: string): void { this.activeSection = section; this.loadAll(); }
@@ -83,14 +95,14 @@ export class EmployeeDashboardComponent implements OnInit {
   }
 
   addCustomer(): void {
-    if (!this.addName || !this.addPassword) { this.toast.error('Fill all required fields!'); return; }
+    if (!this.addName || !this.addPassword || !this.addAadhar || !this.addPan) { this.toast.error('Fill all required fields!'); return; }
     
-    const newUser: any = { role: 'customer', password: this.addPassword, name: this.addName, email: this.addEmail, phone: this.addPhone, address: this.addAddress, balance: 0, cibil: Math.floor(Math.random() * 551) + 300, status: 'active' };
+    const newUser: any = { role: 'customer', password: this.addPassword, name: this.addName, email: this.addEmail, phone: this.addPhone, address: this.addAddress, aadharCard: this.addAadhar, panCard: this.addPan, balance: 0, cibil: Math.floor(Math.random() * 551) + 300, status: 'active' };
     
     this.auth.register(newUser).subscribe({
       next: (user: any) => {
-        this.toast.success(`Customer created! ID: ${user.username}`);
-        this.addName = ''; this.addPassword = ''; this.addEmail = ''; this.addPhone = ''; this.addAddress = '';
+        this.toast.success(`Customer created! Username: ${user.username}`);
+        this.addName = ''; this.addPassword = ''; this.addEmail = ''; this.addPhone = ''; this.addAddress = ''; this.addAadhar = ''; this.addPan = '';
         this.loadAll();
         this.activeSection = 'customers';
       },
@@ -103,11 +115,18 @@ export class EmployeeDashboardComponent implements OnInit {
     this.showViewUserModal = !!this.viewUser;
   }
 
+  openViewLoan(id: number): void {
+    this.viewLoan = this.loans.find(l => l.id === id) || null;
+    this.showViewLoanModal = !!this.viewLoan;
+  }
+
   processTransaction(): void {
     if (!this.txSsn || !this.txName || !this.txAmount || this.txAmount <= 0) { this.toast.error('Fill all transaction fields!'); return; }
     
+    const emp = this.auth.getCurrentUser();
     const tx = {
-      customerUsername: this.txSsn,
+      customerUsername: emp?.username || 'employee',
+      recipientUsername: this.txSsn,
       amount: this.txAmount,
       type: this.txType,
       toAcc: this.txToAcc || undefined,
@@ -125,39 +144,58 @@ export class EmployeeDashboardComponent implements OnInit {
   }
 
   applyLoan(): void {
-    if (!this.loanCustId || !this.loanAmount || this.loanAmount <= 0) { this.toast.error('Fill all required loan fields!'); return; }
+    if (!this.loanCustUsername || !this.loanAmount || this.loanAmount <= 0) { this.toast.error('Fill all required loan fields!'); return; }
     const emp = this.auth.getCurrentUser();
     
     const loan = {
-      customerId: this.loanCustId,
+      customerUsername: this.loanCustUsername,
       amount: this.loanAmount,
       type: this.loanType,
-      interest: this.loanInterest,
-      timeline: this.loanTimeline,
-      document: this.loanDocument,
+      loanBasis: this.loanBasis,
+      collateralDetails: this.loanBasis === 'Collateral' ? this.collateralDetails : null,
+      emiMonths: this.loanBasis === 'Collateral' ? this.loanEmiMonths : null,
+      emiAmount: this.loanBasis === 'Collateral' ? (this.loanAmount / this.loanEmiMonths) * 1.1 : null,
+      verificationStatus: 'PENDING_MANAGER',
       status: 'pending',
       appliedBy: emp?.username || 'employee'
     };
 
     this.api.applyLoan(loan).subscribe({
       next: () => {
-        this.toast.success('Loan application submitted!');
-        this.loanCustId = null; this.loanAmount = null;
+        this.toast.success('Loan application submitted to Manager!');
+        this.loanCustUsername = ''; this.loanAmount = null; this.collateralDetails = ''; this.uploadedFileName = '';
         this.loadAll();
       },
       error: () => this.toast.error('Failed to apply for loan')
     });
   }
 
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.uploadedFileName = file.name;
+    }
+  }
+
+  verifyLoan(id: number): void {
+    const emp = this.auth.getCurrentUser();
+    this.api.updateLoanVerificationStatus(id, 'PENDING_MANAGER', emp?.username || 'employee').subscribe(() => {
+      this.toast.success('Loan verified and forwarded to Manager');
+      this.loadAll();
+    });
+  }
+
   approveProfile(id: number): void {
-    this.api.updateProfileStatus(id, 'approved').subscribe(() => {
+    const emp = this.auth.getCurrentUser();
+    this.api.updateProfileStatus(id, 'approved', emp?.username || 'employee').subscribe(() => {
       this.toast.success('Profile update approved');
       this.loadAll();
     });
   }
 
   rejectProfile(id: number): void {
-    this.api.updateProfileStatus(id, 'rejected').subscribe(() => {
+    const emp = this.auth.getCurrentUser();
+    this.api.updateProfileStatus(id, 'rejected', emp?.username || 'employee').subscribe(() => {
       this.toast.success('Profile update rejected');
       this.loadAll();
     });

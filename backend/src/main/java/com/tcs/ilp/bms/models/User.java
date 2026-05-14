@@ -20,4 +20,6 @@ public class User {
     private Integer cibil;
     private String status;
     private String pin;
+    private String aadharCard;
+    private String panCard;
 }
