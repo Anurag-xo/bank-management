@@ -32,6 +32,47 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
+        if (user.getName() == null || user.getName().trim().isEmpty() ||
+            user.getEmail() == null || user.getEmail().trim().isEmpty() ||
+            user.getPhone() == null || user.getPhone().trim().isEmpty() ||
+            user.getAddress() == null || user.getAddress().trim().isEmpty() ||
+            user.getPassword() == null || user.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("All fields are required.");
+        }
+
+        // Validate name format: 2-50 characters, letters and spaces only
+        if (!user.getName().trim().matches("^[a-zA-Z\\s]{2,50}$")) {
+            return ResponseEntity.badRequest().body("Name must be 2-50 characters long and contain only letters.");
+        }
+
+        // Validate email format
+        if (!user.getEmail().trim().matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+            return ResponseEntity.badRequest().body("Invalid email address format.");
+        }
+
+        // Validate phone number: exactly 10 digits
+        if (!user.getPhone().trim().matches("^\\d{10}$")) {
+            return ResponseEntity.badRequest().body("Phone number must be exactly 10 digits.");
+        }
+
+        // Validate password strength: min 8 characters, at least 1 uppercase, 1 lowercase, 1 digit, 1 special character
+        String password = user.getPassword();
+        if (password.length() < 8) {
+            return ResponseEntity.badRequest().body("Password must be at least 8 characters long.");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            return ResponseEntity.badRequest().body("Password must contain at least one uppercase letter.");
+        }
+        if (!password.matches(".*[a-z].*")) {
+            return ResponseEntity.badRequest().body("Password must contain at least one lowercase letter.");
+        }
+        if (!password.matches(".*[0-9].*")) {
+            return ResponseEntity.badRequest().body("Password must contain at least one digit.");
+        }
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]\\{\\};':\",./<>?~`].*")) {
+            return ResponseEntity.badRequest().body("Password must contain at least one special character.");
+        }
+
         String prefix = "CUST";
         if ("employee".equalsIgnoreCase(user.getRole())) prefix = "EMP";
         if ("manager".equalsIgnoreCase(user.getRole())) prefix = "MGR";
@@ -41,6 +82,23 @@ public class UserController {
             generatedUsername = prefix + (int)(Math.random() * 900000 + 100000);
         }
         user.setUsername(generatedUsername);
+        
+        if ("customer".equalsIgnoreCase(user.getRole())) {
+            if (user.getCibil() == null || user.getCibil() == 0) {
+                user.setCibil((int)(Math.random() * 551 + 300));
+            }
+            if (user.getBalance() == null) {
+                user.setBalance(0.0);
+            }
+            if (user.getStatus() == null || user.getStatus().trim().isEmpty()) {
+                user.setStatus("active");
+            }
+        } else {
+            if (user.getStatus() == null || user.getStatus().trim().isEmpty()) {
+                user.setStatus("active");
+            }
+        }
+        
         userRepository.save(user);
         return ResponseEntity.ok(user);
     }

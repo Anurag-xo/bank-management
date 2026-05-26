@@ -66,3 +66,31 @@
   .auth-right { padding: 40px 20px; }
   .form-row { flex-direction: column; }
 }
+
+.form-error {
+  color: #ef4444;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-group input.is-invalid, .form-group select.is-invalid {
+  border-color: #ef4444 !important;
+  background-color: #fff8f8;
+}
+
+.form-group input.is-invalid:focus, .form-group select.is-invalid:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+.form-group input.is-valid, .form-group select.is-valid {
+  border-color: #10b981 !important;
+  background-color: #f0fdf4;
+}
+
+.form-group input.is-valid:focus, .form-group select.is-valid:focus {
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+}

@@ -185,6 +185,11 @@ export class AdminDashboardComponent implements OnInit {
     this.showViewLoanModal = !!this.viewLoan;
   }
 
+  getCustomerCibil(username: string): number {
+    const cust = this.users.find(u => u.username === username);
+    return cust ? (cust.cibil ?? 0) : 0;
+  }
+
   getLoanInterest(loan: Loan): number { return loan.interest ? parseFloat(loan.interest) : 10.0; }
   getLoanTimeline(loan: Loan): number { return loan.timeline ? parseInt(loan.timeline) : 12; }
   getAccountNumber(id: number): string { return String(1000000000 + id); }

@@ -155,14 +155,14 @@ export class EmployeeDashboardComponent implements OnInit {
       collateralDetails: this.loanBasis === 'Collateral' ? this.collateralDetails : null,
       emiMonths: this.loanBasis === 'Collateral' ? this.loanEmiMonths : null,
       emiAmount: this.loanBasis === 'Collateral' ? (this.loanAmount / this.loanEmiMonths) * 1.1 : null,
-      verificationStatus: 'PENDING_MANAGER',
+      verificationStatus: 'PENDING_EMPLOYEE',
       status: 'pending',
       appliedBy: emp?.username || 'employee'
     };
 
     this.api.applyLoan(loan).subscribe({
       next: () => {
-        this.toast.success('Loan application submitted to Manager!');
+        this.toast.success('Loan application submitted for Employee verification!');
         this.loanCustUsername = ''; this.loanAmount = null; this.collateralDetails = ''; this.uploadedFileName = '';
         this.loadAll();
       },
@@ -177,11 +177,26 @@ export class EmployeeDashboardComponent implements OnInit {
     }
   }
 
+  getCustomerCibil(username: string): number {
+    const cust = this.customers.find(c => c.username === username);
+    return cust ? (cust.cibil ?? 0) : 0;
+  }
+
   verifyLoan(id: number): void {
     const emp = this.auth.getCurrentUser();
     this.api.updateLoanVerificationStatus(id, 'PENDING_MANAGER', emp?.username || 'employee').subscribe(() => {
       this.toast.success('Loan verified and forwarded to Manager');
       this.loadAll();
+    });
+  }
+
+  rejectLoan(id: number): void {
+    const emp = this.auth.getCurrentUser();
+    this.api.updateLoanStatus(id, 'rejected', emp?.username || 'employee').subscribe(() => {
+      this.api.updateLoanVerificationStatus(id, 'REJECTED_BY_EMPLOYEE', emp?.username || 'employee').subscribe(() => {
+        this.toast.success('Loan rejected by employee');
+        this.loadAll();
+      });
     });
   }
 

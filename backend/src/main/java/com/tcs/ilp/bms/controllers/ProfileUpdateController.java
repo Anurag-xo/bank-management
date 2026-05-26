@@ -1,6 +1,7 @@
 package com.tcs.ilp.bms.controllers;
 
 import com.tcs.ilp.bms.models.ProfileUpdate;
+import com.tcs.ilp.bms.models.User;
 import com.tcs.ilp.bms.repositories.ProfileUpdateRepository;
 import com.tcs.ilp.bms.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

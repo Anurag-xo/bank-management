@@ -15,6 +15,8 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent {
   username = '';
   password = '';
+  usernameError = '';
+  passwordError = '';
   errorVisible = false;
 
   constructor(private auth: AuthService, private router: Router) {
@@ -24,8 +26,35 @@ export class LoginComponent {
     }
   }
 
+  validateUsername(): boolean {
+    const trimmed = this.username.trim();
+    if (!trimmed) {
+      this.usernameError = 'Username is required.';
+      return false;
+    }
+    this.usernameError = '';
+    return true;
+  }
+
+  validatePassword(): boolean {
+    if (!this.password) {
+      this.passwordError = 'Password is required.';
+      return false;
+    }
+    this.passwordError = '';
+    return true;
+  }
+
   onSubmit(): void {
-    this.auth.login(this.username, this.password).subscribe(user => {
+    this.errorVisible = false;
+    const isUserValid = this.validateUsername();
+    const isPassValid = this.validatePassword();
+
+    if (!isUserValid || !isPassValid) {
+      return;
+    }
+
+    this.auth.login(this.username.trim(), this.password).subscribe(user => {
       if (user) {
         this.router.navigate([`/${user.role}`]);
       } else {

@@ -214,3 +214,31 @@
   .auth-brand h1 { font-size: 2.2rem; }
   .auth-logo { width: 160px; height: 160px; }
 }
+
+.form-error {
+  color: #ef4444;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-group input.is-invalid {
+  border-color: #ef4444 !important;
+  background-color: #fff8f8;
+}
+
+.form-group input.is-invalid:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+.form-group input.is-valid {
+  border-color: #10b981 !important;
+  background-color: #f0fdf4;
+}
+
+.form-group input.is-valid:focus {
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+}
