@@ -1,4 +1,4 @@
-# TCS Bank Management System - Project Explanation
+# Sentinel Bank Management System - Project Explanation
 
 This document provides a line-by-line explanation of the portal's code to help you present it to your Lead.
 

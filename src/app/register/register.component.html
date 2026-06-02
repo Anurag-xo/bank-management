@@ -1,0 +1,93 @@
+<app-navbar></app-navbar>
+
+<div class="auth-layout">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="assets/sentinel_logo.png" alt="Logo" class="auth-logo">
+      <h1>Join Sentinel Bank</h1>
+      <p>Create your account today and unlock a world of seamless, secure, and modern banking.</p>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-icon">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h2>Create an Account</h2>
+        <p>Enter your details to get started.</p>
+      </div>
+
+      <div class="success-screen" *ngIf="successMessage">
+        <div class="success-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h3>Registration Successful!</h3>
+        <p>Please note down your unique User ID below. You will need this to log in.</p>
+        
+        <div class="generated-id-box">
+          <small>YOUR USER ID</small>
+          <div class="id-value">{{ generatedUsername }}</div>
+        </div>
+
+
+        <button class="btn-auth" routerLink="/login">Go to Login Now</button>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="auth-form" *ngIf="!successMessage">
+        <div class="form-group">
+          <label><i class="bi bi-person-badge"></i> Full Name</label>
+          <input type="text" [(ngModel)]="name" (input)="validateName()" name="name" placeholder="Full Name" [class.is-invalid]="nameError" [class.is-valid]="name && !nameError" required>
+          <div class="form-error" *ngIf="nameError">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ nameError }}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="bi bi-envelope"></i> Email</label>
+            <input type="email" [(ngModel)]="email" (input)="validateEmail()" name="email" placeholder="Email" [class.is-invalid]="emailError" [class.is-valid]="email && !emailError" required>
+            <div class="form-error" *ngIf="emailError">
+              <i class="bi bi-exclamation-circle-fill"></i> {{ emailError }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label><i class="bi bi-telephone"></i> Phone</label>
+            <input type="tel" [(ngModel)]="phone" (input)="validatePhone()" name="phone" placeholder="Phone (10 digits)" [class.is-invalid]="phoneError" [class.is-valid]="phone && !phoneError" required>
+            <div class="form-error" *ngIf="phoneError">
+              <i class="bi bi-exclamation-circle-fill"></i> {{ phoneError }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-geo-alt"></i> Address</label>
+          <input type="text" [(ngModel)]="address" (input)="validateAddress()" name="address" placeholder="Residential Address" [class.is-invalid]="addressError" [class.is-valid]="address && !addressError" required>
+          <div class="form-error" *ngIf="addressError">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ addressError }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-lock"></i> Password</label>
+          <input type="password" [(ngModel)]="password" (input)="validatePassword()" name="password" placeholder="Password (Min 8 chars, A-Z, a-z, 0-9, special)" [class.is-invalid]="passwordError" [class.is-valid]="password && !passwordError" required>
+          <div class="form-error" *ngIf="passwordError">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ passwordError }}
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="errorVisible">
+          <i class="bi bi-exclamation-circle"></i> {{ errorMessage || 'Registration failed. Please try again.' }}
+        </div>
+
+        <button type="submit" class="btn-auth">Register</button>
+
+        <div class="auth-footer">
+          <span>Already have an account?</span>
+          <a routerLink="/login">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

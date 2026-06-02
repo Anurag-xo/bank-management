@@ -1,0 +1,28 @@
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-left">
+      <button class="nav-back-btn" (click)="goBack()" *ngIf="currentPath !== '/'">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <a routerLink="/" class="navbar-brand">
+        <span class="brand-text">Sentinel Bank</span>
+      </a>
+    </div>
+    <div class="navbar-right">
+      <ng-container *ngIf="user; else guestLinks">
+        <span class="user-badge">
+          <i class="bi bi-person-circle"></i>
+          {{ user.name }} <span class="role-tag">{{ user.role }}</span>
+        </span>
+        <button class="logout-btn" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </ng-container>
+      <ng-template #guestLinks>
+        <a routerLink="/" class="nav-link-item" *ngIf="currentPath !== '/'">Home</a>
+        <a routerLink="/login" [ngClass]="{'nav-link-item': true, 'highlight': currentPath.includes('register')}" *ngIf="!currentPath.includes('login')">Login</a>
+        <a routerLink="/register" class="nav-link-item highlight" *ngIf="!currentPath.includes('register')">Register</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

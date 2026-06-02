@@ -1,0 +1,11 @@
+<div class="toast-container" *ngIf="visible" [class]="type" (click)="close()">
+  <div class="toast-icon">
+    <i *ngIf="type === 'success'" class="bi bi-check-circle-fill"></i>
+    <i *ngIf="type === 'error'" class="bi bi-x-circle-fill"></i>
+    <i *ngIf="type === 'info'" class="bi bi-info-circle-fill"></i>
+  </div>
+  <span class="toast-message">{{ message }}</span>
+  <button class="toast-close" (click)="close()">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</div>

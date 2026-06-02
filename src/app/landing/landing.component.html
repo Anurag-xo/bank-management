@@ -1,0 +1,106 @@
+<app-navbar></app-navbar>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge">Trusted by 50,000+ customers</div>
+      <h1>Welcome to <span class="gradient-text">Sentinel Bank</span></h1>
+      <p>Your trusted partner for all banking needs. Experience secure, fast, and modern banking tailored for the future.</p>
+      <div class="hero-actions">
+        <a routerLink="/register" class="btn-hero-primary">
+          <i class="bi bi-rocket-takeoff"></i> Open an Account
+        </a>
+        <a routerLink="/login" class="btn-hero-outline">
+          <i class="bi bi-box-arrow-in-right"></i> Login to NetBanking
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span>50K+</span><small>Customers</small></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span>₹500Cr+</span><small>Assets</small></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span>99.9%</span><small>Uptime</small></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image-wrapper">
+        <img src="assets/banking_people.png" alt="People Banking" class="hero-image">
+        <div class="hero-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">What We Offer</span>
+      <h2>Our Services</h2>
+      <p>Everything you need for modern banking, all in one place.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card" *ngFor="let s of services; let i = index" [style.animation-delay]="i * 0.1 + 's'">
+        <div class="service-icon">
+          <i [class]="'bi ' + s.icon"></i>
+        </div>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.desc }}</p>
+        <div class="service-arrow">
+          <i class="bi bi-arrow-right"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="section-container">
+    <div class="about-content">
+      <span class="section-tag">About Us</span>
+      <h2>About Sentinel Bank</h2>
+      <p>Sentinel Bank is dedicated to providing innovative financial solutions for individuals and businesses alike. With top-tier security and an intuitive digital platform, we ensure that your money is always safe and accessible.</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-tag">Get In Touch</span>
+      <h2>Contact Us</h2>
+      <p>We're here to help! Reach out to us anytime.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
+        <div>
+          <h4>Email</h4>
+          <p>support&#64;sentinelbank.com</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+        <div>
+          <h4>Phone</h4>
+          <p>+91 9876543210</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon"><i class="bi bi-geo-alt-fill"></i></div>
+        <div>
+          <h4>Address</h4>
+          <p>123 Finance Street, Mumbai, India</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="section-container footer-inner">
+    <img src="assets/sentinel_logo.png" alt="Logo" class="footer-logo">
+    <p>&copy; 2026 Sentinel Bank. All rights reserved.</p>
+    <small>Security | Privacy Policy | Terms of Service</small>
+  </div>
+</footer>
